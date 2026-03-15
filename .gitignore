@@ -43,19 +43,23 @@ ENV/
 *~
 .DS_Store
 
+# Logs & Environment
+*.log
+logs/
+.env
+.env.*
+
 # Data
 *.csv
 *.xlsx
 *.xls
 !Business_Analytics_Dataset_10000_Rows.csv
 
-# Outputs
-*.png
-*.jpg
-*.pdf
-*.log
-training_history.json
-
-# Model checkpoints (except final)
-mlp_churn_classifier.pth
+# Model Artifacts & Checkpoints
+*.pth
+*.pt
+*.ckpt
+*.pkl
+*.joblib
+!mlp_churn_classifier.pth
 !mlp_churn_classifier_final.pth

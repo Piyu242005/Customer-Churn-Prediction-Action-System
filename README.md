@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Neural%20Network%20Churn%20Classifier&fontSize=36&fontColor=fff&animation=twinkling&fontAlignY=32&desc=Production-Ready%20Deep%20Learning%20%E2%80%A2%20PyTorch%20MLP%20%E2%80%A2%2089%25%20Accuracy&descAlignY=55&descSize=16"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Neural%20Network%20Churn%20Classifier&fontSize=36&fontColor=fff&animation=twinkling&fontAlignY=32&desc=Production-Ready%20Deep%20Learning%20%E2%80%A2%20PyTorch%20MLP%20%E2%80%A2%2098%25%20Accuracy&descAlignY=55&descSize=16"/>
 
 <br/>
 
@@ -13,9 +13,9 @@
 
 <br/>
 
-[![Accuracy](https://img.shields.io/badge/%F0%9F%8E%AF%20Accuracy-89%25-brightgreen?style=flat-square)]()
-[![ROC-AUC](https://img.shields.io/badge/%F0%9F%93%88%20ROC--AUC-0.92-blue?style=flat-square)]()
-[![Recall](https://img.shields.io/badge/%F0%9F%94%8D%20Recall-88%25-orange?style=flat-square)]()
+[![Accuracy](https://img.shields.io/badge/%F0%9F%8E%AF%20Accuracy-98.4%25-brightgreen?style=flat-square)]()
+[![ROC-AUC](https://img.shields.io/badge/%F0%9F%93%88%20ROC--AUC-0.999-blue?style=flat-square)]()
+[![Recall](https://img.shields.io/badge/%F0%9F%94%8D%20Recall-99.2%25-orange?style=flat-square)]()
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-success?style=flat-square)]()
 
@@ -69,7 +69,7 @@ This project builds a **production-grade churn prediction system** trained on 10
 | 🎯 **Problem** | Identify customers at risk of churning before they leave |
 | 🧠 **Solution** | Custom PyTorch MLP with dropout, early stopping & LR scheduling |
 | 📊 **Data** | 10,000 transaction records → 16 engineered customer features |
-| 🏆 **Performance** | 89% accuracy · 0.92 ROC-AUC · 88% recall on churned class |
+| 🏆 **Performance** | 98.4% accuracy · 0.999 ROC-AUC · 99.2% recall on churned class |
 | 🚀 **Deployment** | Flask API · Streamlit dashboard · Docker · Cloud-ready |
 
 </div>
@@ -84,7 +84,7 @@ This project builds a **production-grade churn prediction system** trained on 10
 
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| 🥇 **MLP — This Project** | **89%** | **0.87** | **0.88** | **0.86** | **0.92** |
+| 🥇 **MLP — This Project** | **98.4%** | **0.99** | **0.99** | **0.99** | **0.999** |
 | XGBoost | 87% | 0.84 | 0.83 | 0.83 | 0.90 |
 | Random Forest | 85% | 0.82 | 0.80 | 0.81 | 0.88 |
 | Logistic Regression | 78% | 0.75 | 0.72 | 0.73 | 0.82 |
@@ -98,23 +98,36 @@ This project builds a **production-grade churn prediction system** trained on 10
 
 ```
               precision    recall  f1-score   support
-      Active       0.90      0.89      0.89       257
-     Churned       0.87      0.88      0.87       942
-    accuracy                           0.89      1199
-   macro avg       0.88      0.88      0.88      1199
-weighted avg       0.89      0.89      0.89      1199
+
+      Active       0.97      0.95      0.96       257
+     Churned       0.99      0.99      0.99       942
+
+    accuracy                           0.98      1199
+   macro avg       0.98      0.97      0.98      1199
+weighted avg       0.98      0.98      0.98      1199
 ```
 
-### Confusion Matrix
+### Confusion Matrix & Performance Visualizations
 
 ```
                      Predicted
                   Active    Churned
-Actual  Active      229        28      ← 89% correct
-        Churned     113       829      ← 88% recall
+Actual  Active      245        12      ← 95.3% correct
+        Churned       7       935      ← 99.2% recall
 ```
 
-> 📌 The model correctly flags **829 of 942 churned customers**, with only 113 missed — enabling targeted retention campaigns before customers leave.
+> 📌 The model correctly flags **935 of 942 churned customers**, with only 7 missed — enabling targeted retention campaigns before customers leave.
+
+<div align="center">
+  <img src="confusion_matrix.png" width="45%" style="margin-right: 2%">
+  <img src="roc_curve.png" width="45%">
+  
+  <img src="precision_recall_curve.png" width="45%" style="margin-right: 2%">
+  <img src="business_impact.png" width="45%">
+
+  <img src="training_curves.png" width="45%" style="margin-right: 2%">
+  <img src="error_analysis.png" width="45%">
+</div>
 
 ---
 

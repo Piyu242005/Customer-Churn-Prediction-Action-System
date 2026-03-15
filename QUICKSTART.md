@@ -1,15 +1,50 @@
 # Quick Start Guide - MLP Churn Classifier
 
-## 🚀 Get Up and Running in 3 Minutes
+## 🚀 Get Up and Running in VS Code (Step-by-Step)
 
-### Step 1: Setup Environment
+### Step 1: Open Project in VS Code
+1. Open Visual Studio Code.
+2. Go to **File > Open Folder...** and select the dataset folder/workspace.
 
+### Step 2: Setup Python Environment
+1. Open a new terminal in VS Code (`Ctrl+Shift+` ` or **Terminal > New Terminal**).
+2. (Optional but recommended) Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   # Windows:
+   .\venv\Scripts\activate
+   # Mac/Linux:
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Step 3: Train the Model (Optional if `.pth` exists)
+Run the training script to generate the model weights:
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+python train.py
 ```
 
-### Step 2: Choose Your Approach
+### Step 4: Start the API and Dashboard
+Open **two** separate terminals in VS Code to run the backend API and frontend dashboard simultaneously.
+
+**Terminal 1 (Flask API):**
+```bash
+python app.py
+```
+*The API will start running at `http://127.0.0.1:5000`*
+
+**Terminal 2 (Streamlit Dashboard):**
+```bash
+streamlit run dashboard.py
+```
+*The dashboard will automatically open in your browser (usually at `http://localhost:8501`)*
+
+---
+
+### Alternative: Interactive Learning
 
 #### A. Interactive Notebook (Recommended for Learning)
 
