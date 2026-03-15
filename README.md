@@ -150,7 +150,7 @@ Actual  Active      245        12      ← 95.3% correct
 
 <div align="center">
 
-<img src="Assets/churn_prediction_workflow.svg" alt="Churn Prediction Pipeline Workflow" width="680"/>
+<img src="churn_prediction_workflow.svg" alt="Churn Prediction Pipeline Workflow" width="680"/>
 
 </div>
 
@@ -299,21 +299,21 @@ pip install -r requirements.txt
 # Recommended: full notebook walkthrough
 jupyter notebook Neural_Network_Churn_Classifier.ipynb
 
-# Or: automated script
-python train.py
+# Or: automated script (run from project root)
+python -m src.pipeline --mode all
 ```
 
 ### 3 — Serve predictions
 
 ```bash
 # REST API  →  http://localhost:5000
-python app.py
+python serving/app.py
 
 # Dashboard  →  http://localhost:8501
-streamlit run dashboard.py
+streamlit run serving/dashboard.py
 
-# Docker
-docker-compose up
+# Docker (from docker/ folder)
+docker-compose -f docker/docker-compose.yml up
 ```
 
 ---
@@ -527,12 +527,15 @@ heroku open
 ## 📁 Project Structure
 
 ```
-Neural-Network-Churn-Classifier/
+Neural-Network-Churn-Classifier--MLP/
 │
 ├── 📓 Neural_Network_Churn_Classifier.ipynb   ← Full training notebook
-├── 📊 Business_Analytics_Dataset_10000_Rows.csv
+├── 🖼️  churn_prediction_workflow.svg           ← Pipeline diagram
+├── 📋 README.md                               ← You are here
+├── 📄 requirements.txt
+├── .gitignore
 │
-├── 🧠 Core
+├── 🧠 src/                                    ← All Python source modules
 │   ├── model.py                  MLP architecture
 │   ├── train.py                  Training loop, CV, early stopping
 │   ├── evaluate.py               Metrics, plots, confusion matrix
@@ -543,25 +546,38 @@ Neural-Network-Churn-Classifier/
 │   ├── pipeline.py               End-to-end automation
 │   └── config.py                 Centralised hyperparameters
 │
-├── 🌐 Serving
+├── 🌐 serving/                                ← API & Dashboard
 │   ├── app.py                    Flask REST API
 │   └── dashboard.py              Streamlit dashboard
 │
-├── 💾 Artifacts
+├── 💾 artifacts/                              ← Trained model weights & preprocessors
+│   ├── mlp_churn_classifier.pth
 │   ├── mlp_churn_classifier_final.pth
 │   ├── scaler.pkl
 │   ├── feature_names.pkl
 │   └── label_encoders.pkl
 │
-├── 🐳 Docker
-│   ├── Dockerfile
-│   └── docker-compose.yml
+├── 📊 data/
+│   └── Business_Analytics_Dataset_10000_Rows.csv
 │
-└── 📝 Docs
-    ├── README.md
+├── 📈 outputs/                                ← Reports & training history
+│   ├── training_history.json
+│   └── comprehensive_evaluation_report.txt
+│
+├── 🖼️  Assets/                                ← Evaluation plot images
+│   ├── confusion_matrix.png
+│   ├── roc_curve.png
+│   └── ...
+│
+├── 🐳 docker/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── .dockerignore
+│
+└── 📝 docs/
     ├── QUICKSTART.md
     ├── DEPLOYMENT.md
-    └── requirements.txt
+    └── CODE_OF_CONDUCT.md
 ```
 
 ---
@@ -660,10 +676,10 @@ The Flask API includes basic error handling and input validation. For production
 
 | File | Purpose |
 |:---|:---|
-| [QUICKSTART.md](QUICKSTART.md) | Get running in under 5 minutes |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Full cloud deployment guide (AWS / Azure / GCP / Heroku) |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards and contributor expectations |
-| `app.py` → `GET /` | Live API docs when the server is running |
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Get running in under 5 minutes |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Full cloud deployment guide (AWS / Azure / GCP / Heroku) |
+| [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | Community standards and contributor expectations |
+| `serving/app.py` → `GET /` | Live API docs when the server is running |
 
 ---
 

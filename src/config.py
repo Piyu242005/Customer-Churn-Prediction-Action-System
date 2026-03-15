@@ -8,7 +8,7 @@ GitHub: github.com/Piyu242005/neural-network-churn
 
 # Data Configuration
 DATA_CONFIG = {
-    'data_path': 'Business_Analytics_Dataset_10000_Rows.csv',
+    'data_path': 'data/Business_Analytics_Dataset_10000_Rows.csv',
     'test_size': 0.2,
     'random_state': 42,
     'churn_threshold_days': 90,
@@ -56,10 +56,10 @@ EVAL_CONFIG = {
 
 # File Paths
 PATHS = {
-    'model_checkpoint': 'mlp_churn_classifier.pth',
-    'model_final': 'mlp_churn_classifier_final.pth',
-    'training_history': 'training_history.json',
-    'plots_dir': 'plots/'
+    'model_checkpoint': 'artifacts/mlp_churn_classifier.pth',
+    'model_final': 'artifacts/mlp_churn_classifier_final.pth',
+    'training_history': 'outputs/training_history.json',
+    'plots_dir': 'Assets/'
 }
 
 # Reproducibility

@@ -16,6 +16,9 @@ import json
 from datetime import datetime
 import logging
 
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+
 from model import MLPClassifier
 
 # Initialize Flask app
@@ -40,7 +43,7 @@ def load_model_and_preprocessor():
     try:
         # Load model
         logger.info("Loading model...")
-        checkpoint = torch.load('mlp_churn_classifier_final.pth', map_location='cpu', weights_only=False)
+        checkpoint = torch.load('artifacts/mlp_churn_classifier_final.pth', map_location='cpu', weights_only=False)
         model = MLPClassifier(input_dim=16, hidden_dims=[128, 64, 32], dropout_rate=0.3)
         model.load_state_dict(checkpoint['model_state_dict'])
         model.eval()
@@ -49,9 +52,9 @@ def load_model_and_preprocessor():
         # Load preprocessor artifacts
         logger.info("Loading preprocessing artifacts...")
         try:
-            scaler = joblib.load('scaler.pkl')
-            feature_names = joblib.load('feature_names.pkl')
-            label_encoders = joblib.load('label_encoders.pkl')
+            scaler = joblib.load('artifacts/scaler.pkl')
+            feature_names = joblib.load('artifacts/feature_names.pkl')
+            label_encoders = joblib.load('artifacts/label_encoders.pkl')
             logger.info("✓ Preprocessing artifacts loaded")
         except FileNotFoundError:
             logger.warning("⚠ Preprocessing artifacts not found. Will use default feature names.")
@@ -515,13 +518,13 @@ def preprocess_and_save_artifacts():
     
     print("Preprocessing data and saving artifacts...")
     
-    data_path = "Business_Analytics_Dataset_10000_Rows.csv"
+    data_path = "data/Business_Analytics_Dataset_10000_Rows.csv"
     X_train, X_test, y_train, y_test, preprocessor = load_and_preprocess_data(data_path)
     
     # Save preprocessing artifacts
-    joblib.dump(preprocessor.scaler, 'scaler.pkl')
-    joblib.dump(preprocessor.get_feature_names(), 'feature_names.pkl')
-    joblib.dump(preprocessor.label_encoders, 'label_encoders.pkl')
+    joblib.dump(preprocessor.scaler, 'artifacts/scaler.pkl')
+    joblib.dump(preprocessor.get_feature_names(), 'artifacts/feature_names.pkl')
+    joblib.dump(preprocessor.label_encoders, 'artifacts/label_encoders.pkl')
     
     print("✓ Preprocessing artifacts saved:")
     print("  - scaler.pkl")
@@ -534,7 +537,7 @@ if __name__ == '__main__':
     
     # Check if artifacts exist, if not create them
     try:
-        joblib.load('scaler.pkl')
+        joblib.load('artifacts/scaler.pkl')
     except:
         print("Preprocessing artifacts not found. Creating them...")
         preprocess_and_save_artifacts()

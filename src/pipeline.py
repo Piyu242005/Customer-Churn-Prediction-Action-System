@@ -70,7 +70,7 @@ class ChurnPredictionPipeline:
         print("STEP 1: DATA LOADING AND PREPROCESSING")
         print("="*70)
         
-        data_path = self.config.get('data_path', 'Business_Analytics_Dataset_10000_Rows.csv')
+        data_path = self.config.get('data_path', 'data/Business_Analytics_Dataset_10000_Rows.csv')
         test_size = self.config.get('test_size', 0.2)
         
         X_train, X_test, y_train, y_test, preprocessor = load_and_preprocess_data(
@@ -432,7 +432,7 @@ def create_default_config():
     """Create default pipeline configuration"""
     return {
         # Data
-        'data_path': 'Business_Analytics_Dataset_10000_Rows.csv',
+        'data_path': 'data/Business_Analytics_Dataset_10000_Rows.csv',
         'test_size': 0.2,
         
         # Feature Engineering
