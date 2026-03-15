@@ -8,6 +8,8 @@ GitHub: github.com/Piyu242005/neural-network-churn
 
 import os
 import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import argparse
 import json
 import joblib
@@ -15,10 +17,13 @@ from datetime import datetime
 import torch
 import numpy as np
 
+import matplotlib
+matplotlib.use('Agg')
+
 # Import project modules
 from data_preprocessing import load_and_preprocess_data
 from model import create_model
-from train import MLPTrainer
+from train import MLPTrainer, optimize_hyperparameters
 from evaluate import (
     evaluate_model, plot_confusion_matrix, plot_roc_curve, 
     plot_precision_recall_curve, plot_threshold_analysis,
@@ -70,7 +75,7 @@ class ChurnPredictionPipeline:
         print("STEP 1: DATA LOADING AND PREPROCESSING")
         print("="*70)
         
-        data_path = self.config.get('data_path', 'data/Business_Analytics_Dataset_10000_Rows.csv')
+        data_path = self.config.get('data_path', 'sqlite:///data/churn_data.db')
         test_size = self.config.get('test_size', 0.2)
         
         X_train, X_test, y_train, y_test, preprocessor = load_and_preprocess_data(
@@ -125,6 +130,9 @@ class ChurnPredictionPipeline:
             if selected_indices:
                 self.feature_names = [self.feature_names[i] for i in selected_indices]
             
+            if engineer.feature_importance is None:
+                engineer.calculate_feature_importance(X_train_eng, y_train_eng)
+
             # Save feature engineering plots
             engineer.plot_feature_importance(
                 top_n=10, 
@@ -150,6 +158,21 @@ class ChurnPredictionPipeline:
         patience = self.config.get('patience', 15)
         weight_decay = self.config.get('weight_decay', 1e-5)
         device = self.config.get('device', 'cuda' if torch.cuda.is_available() else 'cpu')
+        
+        # Hyperparameter Tuning
+        if self.config.get('tune_hyperparameters', False):
+            n_trials = self.config.get('tune_trials', 20)
+            best_params = optimize_hyperparameters(
+                self.X_train, self.y_train, n_trials=n_trials, device=device
+            )
+            # Update config with best params
+            learning_rate = best_params.get('learning_rate', learning_rate)
+            dropout_rate = best_params.get('dropout_rate', dropout_rate)
+            batch_size = best_params.get('batch_size', batch_size)
+            weight_decay = best_params.get('weight_decay', weight_decay)
+            hidden_dims = best_params.get('hidden_dims', hidden_dims)
+            
+            print(f"\nUsing Tuned Architecture: {hidden_dims}")
         
         # Create data loaders
         train_dataset = TensorDataset(self.X_train, self.y_train)
@@ -193,6 +216,16 @@ class ChurnPredictionPipeline:
         
         print(f"✓ Model saved to {model_path}")
         print(f"✓ Training history saved to {history_path}")
+
+        # Sync final model and preprocessing artifacts to artifacts/ so the serving
+        # layer (FastAPI + dashboard) can always find them without knowing the run path.
+        os.makedirs("artifacts", exist_ok=True)
+        artifacts_model_path = "artifacts/mlp_churn_classifier_final.pth"
+        trainer.save_model(artifacts_model_path)
+        joblib.dump(self.preprocessor.scaler, "artifacts/scaler.pkl")
+        joblib.dump(self.feature_names, "artifacts/feature_names.pkl")
+        joblib.dump(self.preprocessor.label_encoders, "artifacts/label_encoders.pkl")
+        print(f"✓ Artifacts synced to artifacts/ for serving")
     
     def step_4_evaluate_model(self):
         """Step 4: Comprehensive model evaluation"""
@@ -432,7 +465,7 @@ def create_default_config():
     """Create default pipeline configuration"""
     return {
         # Data
-        'data_path': 'data/Business_Analytics_Dataset_10000_Rows.csv',
+        'data_path': 'sqlite:///data/churn_data.db',
         'test_size': 0.2,
         
         # Feature Engineering
@@ -442,6 +475,8 @@ def create_default_config():
         'n_features_to_select': None,
         
         # Model Architecture
+        'tune_hyperparameters': False,
+        'tune_trials': 20,
         'hidden_dims': [128, 64, 32],
         'dropout_rate': 0.3,
         
@@ -474,6 +509,8 @@ def main():
     parser.add_argument('--quick', action='store_true', 
                        help='Quick mode (skip baseline comparison and explainability)')
     parser.add_argument('--no-smote', action='store_true', help='Disable SMOTE balancing')
+    parser.add_argument('--tune', action='store_true', help='Run Optuna hyperparameter tuning')
+    parser.add_argument('--tune-trials', type=int, default=20, help='Number of Optuna trials (default: 20)')
     parser.add_argument('--epochs', type=int, help='Number of training epochs')
     
     args = parser.parse_args()
@@ -498,6 +535,11 @@ def main():
     if args.epochs:
         config['epochs'] = args.epochs
         print(f"⚙ Epochs set to {args.epochs}")
+        
+    if args.tune:
+        config['tune_hyperparameters'] = True
+        config['tune_trials'] = args.tune_trials
+        print(f"⚙ Optuna hyperparameter tuning enabled with {args.tune_trials} trials")
     
     # Save config
     os.makedirs('configs', exist_ok=True)

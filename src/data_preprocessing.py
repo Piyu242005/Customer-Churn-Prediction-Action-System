@@ -13,6 +13,8 @@ from sklearn.model_selection import train_test_split
 import torch
 from datetime import datetime, timedelta
 
+from database import DB_URL, init_db
+
 
 class ChurnDataPreprocessor:
     """
@@ -25,7 +27,7 @@ class ChurnDataPreprocessor:
         Initialize the preprocessor
         
         Args:
-            data_path (str): Path to the CSV data file
+            data_path (str): Path to DB/CSV data source
         """
         self.data_path = data_path
         self.scaler = StandardScaler()
@@ -33,9 +35,18 @@ class ChurnDataPreprocessor:
         self.feature_names = []
         
     def load_data(self):
-        """Load the dataset from CSV"""
-        print(f"Loading data from {self.data_path}...")
-        self.df = pd.read_csv(self.data_path)
+        """Load the dataset from SQLite (default) or CSV fallback."""
+        if self.data_path.endswith('.db') or self.data_path.startswith('sqlite:///'):
+            import sqlalchemy
+
+            db_url = self.data_path if self.data_path.startswith('sqlite:///') else f'sqlite:///{self.data_path}'
+            print(f"Loading data from database {db_url}...")
+            engine = sqlalchemy.create_engine(db_url)
+            self.df = pd.read_sql("SELECT * FROM customers", engine)
+        else:
+            print(f"Loading data from {self.data_path}...")
+            self.df = pd.read_csv(self.data_path)
+            
         print(f"Loaded {len(self.df)} records with {len(self.df.columns)} columns")
         return self.df
     
@@ -109,8 +120,8 @@ class ChurnDataPreprocessor:
         # Merge categorical features
         customer_features = customer_features.merge(categorical_features, on='Customer_ID')
         
-        # Fill missing values
-        customer_features['std_revenue'].fillna(0, inplace=True)
+        # Fill missing values (std_revenue is NaN for single-order customers)
+        customer_features['std_revenue'] = customer_features['std_revenue'].fillna(0)
         
         print(f"Churn rate: {customer_features['Churn'].mean():.2%}")
         print(f"Total customers: {len(customer_features)}")
@@ -240,19 +251,24 @@ class ChurnDataPreprocessor:
         return tensors
 
 
-def load_and_preprocess_data(data_path, test_size=0.2, random_state=42):
+def load_and_preprocess_data(data_path=None, test_size=0.2, random_state=42):
     """
     Convenience function to load and preprocess data
     
     Args:
-        data_path (str): Path to data file
+        data_path (str): Optional data path; defaults to local SQLite DB
         test_size (float): Test set proportion
         random_state (int): Random seed
         
     Returns:
         tuple: (X_train, X_test, y_train, y_test, preprocessor)
     """
-    preprocessor = ChurnDataPreprocessor(data_path)
+    resolved_path = data_path or DB_URL
+
+    if resolved_path.endswith('.db') or resolved_path.startswith('sqlite:///'):
+        init_db()
+
+    preprocessor = ChurnDataPreprocessor(resolved_path)
     tensors = preprocessor.process_pipeline(test_size, random_state)
     
     return (*tensors, preprocessor)

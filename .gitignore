@@ -53,7 +53,6 @@ logs/
 *.csv
 *.xlsx
 *.xls
-!Business_Analytics_Dataset_10000_Rows.csv
 
 # Model Artifacts & Checkpoints
 *.pth
@@ -61,5 +60,15 @@ logs/
 *.ckpt
 *.pkl
 *.joblib
-!mlp_churn_classifier.pth
-!mlp_churn_classifier_final.pth
+
+# ==============================
+
+# ML Model Artifacts
+
+# ==============================
+
+*.pth
+*.pt
+*.ckpt
+*.pkl
+*.joblib

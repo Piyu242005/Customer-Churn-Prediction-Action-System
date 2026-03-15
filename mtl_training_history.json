@@ -1,0 +1,34 @@
+{
+    "train_losses": [
+        0.48613655813916257
+    ],
+    "val_losses": [
+        0.25409489559371634
+    ],
+    "train_churn_losses": [
+        0.3982088260034078
+    ],
+    "val_churn_losses": [
+        0.22663768700901124
+    ],
+    "train_clv_losses": [
+        0.1758554656311046
+    ],
+    "val_clv_losses": [
+        0.054914420643033736
+    ],
+    "train_accuracies": [
+        0.8198123044838374
+    ],
+    "val_accuracies": [
+        0.9090909090909091
+    ],
+    "train_clv_mse": [
+        0.17585546538078747
+    ],
+    "val_clv_mse": [
+        0.05491442058913705
+    ],
+    "training_time": 0.5603151321411133,
+    "epochs_trained": 1
+}

@@ -162,10 +162,12 @@ class ModelComparator:
         except:
             metrics['roc_auc'] = None
             metrics['avg_precision'] = None
+            
+        roc_str = f"{metrics['roc_auc']:.4f}" if metrics['roc_auc'] is not None else "N/A"
         
         print(f"✓ {name}: Accuracy={metrics['accuracy']:.4f}, "
               f"F1={metrics['f1_score']:.4f}, "
-              f"ROC-AUC={metrics['roc_auc']:.4f if metrics['roc_auc'] else 'N/A'}")
+              f"ROC-AUC={roc_str}")
         
         return metrics
     
@@ -377,7 +379,7 @@ class ModelComparator:
         metric_cols = ['accuracy', 'precision', 'recall', 'f1_score', 'roc_auc']
         metric_cols = [col for col in metric_cols if col in results_df.columns]
         
-        plot_data = results_df[metric_cols].dropna()
+        plot_data = results_df[metric_cols].dropna().astype(float)
         
         plt.figure(figsize=(10, max(6, len(plot_data) * 0.5)))
         sns.heatmap(plot_data, annot=True, fmt='.4f', cmap='RdYlGn', 

@@ -260,7 +260,12 @@ class ChurnExplainer:
             X_test = X_test.numpy()
         
         sample_shap = shap_values[sample_idx]
+        if isinstance(sample_shap, np.ndarray) and sample_shap.ndim > 1:
+            sample_shap = sample_shap.flatten()
+            
         sample_features = X_test[sample_idx]
+        if isinstance(sample_features, np.ndarray) and sample_features.ndim > 1:
+            sample_features = sample_features.flatten()
         
         # Create DataFrame
         feature_contributions = pd.DataFrame({
@@ -447,46 +452,57 @@ def generate_shap_report(model, X_train, X_test, y_test, feature_names,
     # Initialize explainer
     explainer = ChurnExplainer(model, feature_names, device)
     
+    # Sub-sample for SHAP (too slow on full test set)
+    sample_size = min(100, len(X_test))
+    if isinstance(X_test, torch.Tensor):
+        X_test_sample = X_test[:sample_size].numpy()
+        y_test_sample = y_test[:sample_size].numpy() if isinstance(y_test, torch.Tensor) else y_test[:sample_size]
+    else:
+        X_test_sample = X_test[:sample_size]
+        y_test_sample = y_test[:sample_size]
+        
+    X_train_sample = X_train[:500] if len(X_train) > 500 else X_train
+    
     # Compute SHAP values
-    shap_values, shap_explainer = explainer.compute_shap_values(X_train, X_test, max_samples=100)
+    shap_values, shap_explainer = explainer.compute_shap_values(X_train_sample, X_test_sample, max_samples=100)
     
     # 1. Summary Plot (Dot)
     print("\n1. Creating SHAP Summary Plot (Dot)...")
-    explainer.plot_shap_summary(shap_values, X_test, plot_type='dot', 
+    explainer.plot_shap_summary(shap_values, X_test_sample, plot_type='dot', 
                                save_path=f'{save_dir}shap_summary_dot.png')
     
     # 2. Summary Plot (Bar)
     print("\n2. Creating SHAP Summary Plot (Bar)...")
-    explainer.plot_shap_summary(shap_values, X_test, plot_type='bar', 
+    explainer.plot_shap_summary(shap_values, X_test_sample, plot_type='bar', 
                                save_path=f'{save_dir}shap_summary_bar.png')
     
     # 3. Explain specific predictions
     print("\n3. Explaining Individual Predictions...")
     
     # Find interesting samples
-    if isinstance(y_test, torch.Tensor):
-        y_test_np = y_test.numpy().flatten()
+    if isinstance(y_test_sample, torch.Tensor):
+        y_test_np = y_test_sample.numpy().flatten()
     else:
-        y_test_np = y_test.flatten()
+        y_test_np = y_test_sample.flatten()
     
     # True positive (correctly predicted churn)
     tp_indices = np.where((y_test_np == 1) & 
-                         (explainer._predict_fn(X_test if isinstance(X_test, np.ndarray) 
-                          else X_test.numpy()).flatten() >= 0.5))[0]
+                         (explainer._predict_fn(X_test_sample if isinstance(X_test_sample, np.ndarray) 
+                          else X_test_sample.numpy()).flatten() >= 0.5))[0]
     if len(tp_indices) > 0:
         print(f"\n   a) True Positive (Churned, Correctly Predicted):")
-        explainer.explain_prediction(shap_values, X_test, y_test_np, sample_idx=tp_indices[0])
-        explainer.plot_shap_waterfall(shap_values, X_test, sample_idx=tp_indices[0],
+        explainer.explain_prediction(shap_values, X_test_sample, y_test_np, sample_idx=tp_indices[0])
+        explainer.plot_shap_waterfall(shap_values, X_test_sample, sample_idx=tp_indices[0],
                                      save_path=f'{save_dir}shap_waterfall_true_positive.png')
     
     # False positive (incorrectly predicted as churn)
     fp_indices = np.where((y_test_np == 0) & 
-                         (explainer._predict_fn(X_test if isinstance(X_test, np.ndarray) 
-                          else X_test.numpy()).flatten() >= 0.5))[0]
+                         (explainer._predict_fn(X_test_sample if isinstance(X_test_sample, np.ndarray) 
+                          else X_test_sample.numpy()).flatten() >= 0.5))[0]
     if len(fp_indices) > 0:
         print(f"\n   b) False Positive (Active, Incorrectly Predicted as Churned):")
-        explainer.explain_prediction(shap_values, X_test, y_test_np, sample_idx=fp_indices[0])
-        explainer.plot_shap_waterfall(shap_values, X_test, sample_idx=fp_indices[0],
+        explainer.explain_prediction(shap_values, X_test_sample, y_test_np, sample_idx=fp_indices[0])
+        explainer.plot_shap_waterfall(shap_values, X_test_sample, sample_idx=fp_indices[0],
                                      save_path=f'{save_dir}shap_waterfall_false_positive.png')
     
     # 4. Dependence plots for top features
@@ -500,7 +516,7 @@ def generate_shap_report(model, X_train, X_test, y_test, feature_names,
         feature_name = feature_names[idx]
         print(f"   - Dependence plot for {feature_name}")
         explainer.plot_shap_dependence(
-            shap_values, X_test, feature_name,
+            shap_values, X_test_sample, feature_name,
             save_path=f'{save_dir}shap_dependence_{feature_name.replace(" ", "_")}.png'
         )
     

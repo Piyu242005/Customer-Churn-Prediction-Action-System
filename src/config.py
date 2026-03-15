@@ -6,9 +6,14 @@ Author: Piyush Ramteke
 GitHub: github.com/Piyu242005/neural-network-churn
 """
 
+# torch must be imported before TRAINING_CONFIG references torch.cuda
+import torch
+import numpy as np
+import random
+
 # Data Configuration
 DATA_CONFIG = {
-    'data_path': 'data/Business_Analytics_Dataset_10000_Rows.csv',
+    'data_path': 'sqlite:///data/churn_data.db',
     'test_size': 0.2,
     'random_state': 42,
     'churn_threshold_days': 90,
@@ -65,9 +70,6 @@ PATHS = {
 # Reproducibility
 SEED = 42
 
-import torch
-import numpy as np
-import random
 
 def set_seed(seed=SEED):
     """Set random seeds for reproducibility"""

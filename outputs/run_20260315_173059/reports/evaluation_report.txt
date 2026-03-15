@@ -1,0 +1,34 @@
+COMPREHENSIVE MODEL EVALUATION REPORT
+============================================================
+
+STANDARD METRICS:
+  accuracy: 0.9458
+  precision: 0.9933
+  recall: 0.9374
+  f1_score: 0.9645
+  roc_auc: 0.9925
+  avg_precision: 0.9980
+
+ADVANCED METRICS:
+  matthews_corrcoef: 0.8567
+  cohen_kappa: 0.8503
+  balanced_accuracy: 0.9570
+  log_loss: 0.1305
+  specificity: 0.9767
+  sensitivity: 0.9374
+  false_positive_rate: 0.0233
+  false_negative_rate: 0.0626
+
+BUSINESS IMPACT:
+  baseline_cost: 471000.0
+  total_cost_with_model: 382999.99999999994
+  cost_savings: 88000.00000000006
+  roi_percentage: 197.97525309336345
+  customers_saved: 264.9
+  retention_campaigns: 889
+  true_positives: 883
+  false_positives: 6
+  false_negatives: 59
+  true_negatives: 251
+
+============================================================

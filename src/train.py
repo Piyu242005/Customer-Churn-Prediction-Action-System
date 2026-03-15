@@ -16,6 +16,10 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import time
 import json
+import optuna
+import mlflow
+import mlflow.pytorch
+import os
 
 from model import create_model
 from data_preprocessing import load_and_preprocess_data
@@ -42,6 +46,11 @@ class MLPTrainer:
         self.val_accuracies = []
         self.best_val_loss = float('inf')
         self.best_model_state = None
+        
+        # Set up MLflow tracking URI using absolute path so it works regardless of CWD
+        _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        mlflow.set_tracking_uri(f"sqlite:///{os.path.join(_project_root, 'mlflow.db')}")
+        mlflow.set_experiment("Churn_Prediction")
         
     def train_epoch(self, train_loader, criterion, optimizer):
         """
@@ -159,48 +168,89 @@ class MLPTrainer:
         
         start_time = time.time()
         
-        for epoch in range(epochs):
-            # Train
-            train_loss, train_acc = self.train_epoch(train_loader, criterion, optimizer)
+        print(f"{'#'*70}")
+        
+        with mlflow.start_run(run_name="MLP_Churn_Training", nested=True):
+            # Log Hyperparameters
+            mlflow.log_params({
+                "learning_rate": learning_rate,
+                "epochs": epochs,
+                "patience": patience,
+                "weight_decay": weight_decay,
+                "hidden_dims": str(self.model.hidden_dims),
+                "dropout_rate": self.model.dropout_rate if hasattr(self.model, 'dropout_rate') else 0.0
+            })
             
-            # Validate
-            val_loss, val_acc = self.validate(val_loader, criterion)
-            
-            # Learning rate scheduling
-            scheduler.step(val_loss)
-            
-            # Save history
-            self.train_losses.append(train_loss)
-            self.val_losses.append(val_loss)
-            self.train_accuracies.append(train_acc)
-            self.val_accuracies.append(val_acc)
-            
-            # Print progress
-            if (epoch + 1) % 10 == 0:
+            for epoch in range(epochs):
+                # Train
+                train_loss, train_acc = self.train_epoch(train_loader, criterion, optimizer)
+                
+                # Validate
+                val_loss, val_acc = self.validate(val_loader, criterion)
+                
+                # Learning rate scheduling
+                scheduler.step(val_loss)
+                
+                # Save history
+                self.train_losses.append(train_loss)
+                self.val_losses.append(val_loss)
+                self.train_accuracies.append(train_acc)
+                self.val_accuracies.append(val_acc)
+                
+                # Get current LR for logging and printing
                 current_lr = optimizer.param_groups[0]['lr']
-                print(f"Epoch [{epoch+1}/{epochs}] "
-                      f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
-                      f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f} | "
-                      f"LR: {current_lr:.6f}")
+                
+                # Print progress
+                if (epoch + 1) % 10 == 0:
+                    print(f"Epoch [{epoch+1}/{epochs}] "
+                          f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
+                          f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f} | "
+                          f"LR: {current_lr:.6f}")
+                    
+                # Log metrics to MLflow for the epoch
+                mlflow.log_metrics({
+                    "train_loss": train_loss,
+                    "train_accuracy": train_acc,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_acc,
+                    "learning_rate": current_lr
+                }, step=epoch)
+                
+                # Early stopping and best model saving
+                if val_loss < self.best_val_loss:
+                    self.best_val_loss = val_loss
+                    self.best_model_state = self.model.state_dict().copy()
+                    epochs_no_improve = 0
+                else:
+                    epochs_no_improve += 1
+                
+                if epochs_no_improve >= patience:
+                    print(f"\nEarly stopping triggered after {epoch + 1} epochs")
+                    break
             
-            # Early stopping and best model saving
-            if val_loss < self.best_val_loss:
-                self.best_val_loss = val_loss
-                self.best_model_state = self.model.state_dict().copy()
-                epochs_no_improve = 0
-            else:
-                epochs_no_improve += 1
+            # Load best model
+            self.model.load_state_dict(self.best_model_state)
             
-            if epochs_no_improve >= patience:
-                print(f"\nEarly stopping triggered after {epoch + 1} epochs")
-                break
+            training_time = time.time() - start_time
+            print(f"\nTraining completed in {training_time:.2f} seconds")
+            print(f"Best validation loss: {self.best_val_loss:.4f}")
+            
+            # Log final metrics and model to MLflow
+            mlflow.log_metrics({
+                "final_best_val_loss": self.best_val_loss,
+                "final_val_accuracy": self.val_accuracies[np.argmin(self.val_losses)], # Accuracy corresponding to best loss
+                "training_time_seconds": training_time,
+                "epochs_trained": epoch + 1
+            })
+            
+            # Log the PyTorch model artifact
+            try:
+                mlflow.pytorch.log_model(self.model, "mlp_churn_classifier")
+                print("Model logged successfully to MLflow Registry")
+            except Exception as e:
+                print(f"Error logging model to MLflow: {e}")
         
-        # Load best model
-        self.model.load_state_dict(self.best_model_state)
-        
-        training_time = time.time() - start_time
-        print(f"\nTraining completed in {training_time:.2f} seconds")
-        print(f"Best validation loss: {self.best_val_loss:.4f}")
+        print(f"{'#'*70}")
         
         return {
             'train_losses': self.train_losses,
@@ -224,7 +274,7 @@ class MLPTrainer:
     
     def load_model(self, path='best_model.pth'):
         """Load a saved model"""
-        checkpoint = torch.load(path)
+        checkpoint = torch.load(path, map_location='cpu', weights_only=False)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.train_losses = checkpoint['train_losses']
         self.val_losses = checkpoint['val_losses']
@@ -312,6 +362,82 @@ def cross_validate(X, y, n_folds=5, hidden_dims=[128, 64, 32],
     }
 
 
+def optimize_hyperparameters(X, y, n_trials=20, device='cpu'):
+    """
+    Use Optuna to find the best hyperparameters for the MLP model
+    """
+    from sklearn.model_selection import train_test_split
+    
+    # Silence optuna INFO logs to keep console clean
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    
+    # Split data once for all trials
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    
+    train_dataset = TensorDataset(X_train, y_train)
+    val_dataset = TensorDataset(X_val, y_val)
+    
+    input_dim = X.shape[1]
+    
+    def objective(trial):
+        # Hyperparameter search space requested for Phase 1
+        lr = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
+        dropout_rate = trial.suggest_float("dropout_rate", 0.1, 0.5)
+        batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
+        weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
+
+        architecture = trial.suggest_categorical(
+            "hidden_dims",
+            [
+                "64,32",
+                "128,64,32",
+                "256,128,64",
+            ],
+        )
+        hidden_dims = [int(dim) for dim in architecture.split(",")]
+            
+        # Create loaders
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size)
+        
+        # Create model
+        model = create_model(input_dim, hidden_dims, dropout_rate)
+        
+        # Train
+        trainer = MLPTrainer(model, device)
+        # Use smaller epochs and patience for tuning
+        history = trainer.train(train_loader, val_loader, epochs=40, 
+                                learning_rate=lr, patience=5, 
+                                weight_decay=weight_decay)
+        
+        return trainer.best_val_loss
+        
+    print(f"\n{'=' * 60}")
+    print(f"Starting Optuna Hyperparameter Optimization ({n_trials} trials)")
+    print(f"{'=' * 60}")
+    
+    study = optuna.create_study(direction="minimize")
+    
+    with mlflow.start_run(run_name="Optuna_Optimization"):
+        study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
+        
+        print("\nOptimization Complete!")
+        print(f"Best Validation Loss: {study.best_trial.value:.4f}")
+        print("Best Hyperparameters Found:")
+        
+        best_params = study.best_trial.params
+        for key, value in best_params.items():
+            print(f"  {key}: {value}")
+            
+        # Log Best Optuna results to the parent MLflow run
+        mlflow.log_params(best_params)
+        mlflow.log_metric("best_optuna_val_loss", study.best_trial.value)
+        
+    best_params['hidden_dims'] = [int(dim) for dim in best_params['hidden_dims'].split(',')]
+        
+    return best_params
+
+
 def main():
     """
     Main training function
@@ -320,7 +446,7 @@ def main():
     print("MLP Churn Classifier Training")
     print("="*60)
     
-    # Hyperparameters
+    # Base hyperparameters (overridden by Optuna best trial)
     BATCH_SIZE = 32
     EPOCHS = 100
     LEARNING_RATE = 0.001
@@ -328,6 +454,7 @@ def main():
     DROPOUT_RATE = 0.3
     PATIENCE = 15
     WEIGHT_DECAY = 1e-5
+    N_TUNING_TRIALS = 20
     
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -337,8 +464,23 @@ def main():
     print("\n" + "="*60)
     print("Data Preprocessing")
     print("="*60)
-    data_path = "Business_Analytics_Dataset_10000_Rows.csv"
-    X_train, X_test, y_train, y_test, preprocessor = load_and_preprocess_data(data_path)
+    X_train, X_test, y_train, y_test, preprocessor = load_and_preprocess_data()
+
+    print("\n" + "="*60)
+    print("Hyperparameter Optimization (Optuna)")
+    print("="*60)
+    best_params = optimize_hyperparameters(
+        X_train,
+        y_train,
+        n_trials=N_TUNING_TRIALS,
+        device=device,
+    )
+
+    BATCH_SIZE = best_params.get('batch_size', BATCH_SIZE)
+    LEARNING_RATE = best_params.get('learning_rate', LEARNING_RATE)
+    DROPOUT_RATE = best_params.get('dropout_rate', DROPOUT_RATE)
+    WEIGHT_DECAY = best_params.get('weight_decay', WEIGHT_DECAY)
+    HIDDEN_DIMS = best_params.get('hidden_dims', HIDDEN_DIMS)
     
     # Create data loaders
     train_dataset = TensorDataset(X_train, y_train)
@@ -371,7 +513,7 @@ def main():
     )
     
     # Save model
-    trainer.save_model('mlp_churn_classifier.pth')
+    trainer.save_model('mlp_churn_classifier_final.pth')
     
     # Save training history
     with open('training_history.json', 'w') as f:

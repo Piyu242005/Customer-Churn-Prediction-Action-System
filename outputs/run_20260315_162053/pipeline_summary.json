@@ -1,0 +1,110 @@
+{
+    "pipeline_run": {
+        "timestamp": "20260315_162053",
+        "config": {
+            "data_path": "sqlite:///data/churn_data.db",
+            "test_size": 0.2,
+            "enable_feature_engineering": true,
+            "use_smote": true,
+            "use_feature_selection": false,
+            "n_features_to_select": null,
+            "tune_hyperparameters": true,
+            "tune_trials": 2,
+            "hidden_dims": [
+                128,
+                64,
+                32
+            ],
+            "dropout_rate": 0.3,
+            "batch_size": 32,
+            "epochs": 3,
+            "learning_rate": 0.001,
+            "weight_decay": 1e-05,
+            "patience": 15,
+            "device": "cpu",
+            "enable_baseline_comparison": true,
+            "enable_explainability": true,
+            "skip_baseline_comparison": true,
+            "skip_explainability": true,
+            "churn_cost": 500,
+            "retention_cost": 50,
+            "retention_success_rate": 0.3
+        },
+        "output_directory": "outputs/run_20260315_162053"
+    },
+    "data": {
+        "train_samples": 7530,
+        "test_samples": 1199,
+        "num_features": 16,
+        "feature_names": [
+            "total_orders",
+            "total_revenue",
+            "avg_revenue",
+            "std_revenue",
+            "total_profit",
+            "avg_profit",
+            "avg_discount",
+            "total_quantity",
+            "avg_quantity",
+            "days_since_last_purchase",
+            "customer_lifetime_days",
+            "purchase_frequency",
+            "Region_encoded",
+            "Product_Category_encoded",
+            "Customer_Segment_encoded",
+            "Payment_Method_encoded"
+        ]
+    },
+    "model": {
+        "architecture": "MLP",
+        "hidden_dims": [
+            128,
+            64,
+            32
+        ],
+        "dropout_rate": 0.3,
+        "total_parameters": 2689
+    },
+    "training": {
+        "epochs": 3,
+        "training_time": 5.624614715576172,
+        "final_train_loss": 0.10737844185228367,
+        "final_val_loss": 0.0932835743042506,
+        "final_train_acc": 0.9593625498007968,
+        "final_val_acc": 0.9532944120100083
+    },
+    "results": {
+        "evaluation": {
+            "metrics": {
+                "accuracy": 0.9532944120100083,
+                "precision": 0.9846827133479212,
+                "recall": 0.9554140127388535,
+                "f1_score": 0.9698275862068966,
+                "roc_auc": 0.9936884020256594,
+                "avg_precision": 0.9983056327598616
+            },
+            "advanced_metrics": {
+                "matthews_corrcoef": 0.8685443893118359,
+                "cohen_kappa": 0.8666105115939035,
+                "balanced_accuracy": 0.9504696522838236,
+                "log_loss": 0.09328360137882667,
+                "specificity": 0.9455252918287937,
+                "sensitivity": 0.9554140127388535,
+                "false_positive_rate": 0.054474708171206226,
+                "false_negative_rate": 0.044585987261146494
+            },
+            "business_metrics": {
+                "baseline_cost": "471000.0",
+                "total_cost_with_model": 381700.0,
+                "cost_savings": 89300.0,
+                "roi_percentage": 195.40481400437636,
+                "customers_saved": 270.0,
+                "retention_campaigns": "914",
+                "true_positives": "900",
+                "false_positives": "14",
+                "false_negatives": "42",
+                "true_negatives": "243"
+            }
+        }
+    }
+}

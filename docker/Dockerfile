@@ -1,49 +1,42 @@
 # Dockerfile for MLP Churn Classifier API
-# Multi-stage build for optimized image size
+# Build context must be the PROJECT ROOT (one level above docker/).
+# Run: docker build -f docker/Dockerfile -t churn-api .
+#   or: docker compose up  (from docker/ with the fixed docker-compose.yml)
 
-# Stage 1: Builder
-FROM python:3.10-slim as builder
+# Stage 1: Builder — install all Python deps
+FROM python:3.10-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --user --no-cache-dir -r requirements.txt
 
-# Stage 2: Runtime
+# Stage 2: Runtime — lean image with only what's needed
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copy Python dependencies from builder
+# Bring in the installed packages from the builder stage
 COPY --from=builder /root/.local /root/.local
-
-# Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy application code
-COPY model.py .
-COPY data_preprocessing.py .
-COPY app.py .
-COPY mlp_churn_classifier.pth .
-COPY scaler.pkl* ./
-COPY feature_names.pkl* ./
-COPY label_encoders.pkl* ./
+# Copy source maintaining the directory structure that serving/app.py depends on:
+#   serving/app.py resolves ROOT_DIR = Path(__file__).resolve().parents[1]  -> /app
+#   then adds /app/src to sys.path for model imports
+COPY src/ ./src/
+COPY serving/ ./serving/
+COPY artifacts/ ./artifacts/
 
-# Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5000/health')"
+# Built-in Python urllib avoids a `requests` dependency in the slim image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
 
-# Run the API
-CMD ["python", "app.py"]
+# Launch the FastAPI app via uvicorn (consistent with local `uvicorn serving.app:app`)
+CMD ["uvicorn", "serving.app:app", "--host", "0.0.0.0", "--port", "5000"]
