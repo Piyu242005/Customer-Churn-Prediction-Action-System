@@ -19,8 +19,8 @@ import mlflow
 import mlflow.pytorch
 import os
 
-from model import create_mtl_model
-from data_preprocessing import load_and_preprocess_data
+from src.model.model import create_mtl_model
+from src.data.data_preprocessing import load_and_preprocess_data
 
 
 class MTLTrainer:
@@ -432,7 +432,7 @@ def prepare_mtl_data(data_path, test_size=0.2, random_state=42):
     Returns:
         tuple: (X_train, X_test, y_churn_train, y_churn_test, y_clv_train, y_clv_test, preprocessor)
     """
-    from data_preprocessing import ChurnDataPreprocessor
+    from src.data.data_preprocessing import ChurnDataPreprocessor
     
     # Load and preprocess data
     preprocessor = ChurnDataPreprocessor(data_path)

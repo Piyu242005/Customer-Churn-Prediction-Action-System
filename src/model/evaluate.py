@@ -19,8 +19,8 @@ from sklearn.metrics import (
     cohen_kappa_score, balanced_accuracy_score, log_loss
 )
 from sklearn.calibration import calibration_curve, CalibrationDisplay
-from model import MLPClassifier
-from data_preprocessing import load_and_preprocess_data
+from src.model.model import MLPClassifier
+from src.data.data_preprocessing import load_and_preprocess_data
 
 
 def evaluate_model(model, X_test, y_test, threshold=0.5):

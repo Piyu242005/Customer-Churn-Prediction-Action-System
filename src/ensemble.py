@@ -13,7 +13,7 @@ import numpy as np
 from typing import List, Dict, Any, Union, Optional
 import os
 
-from model import MLPClassifier, MLPMultiTaskHead, SequenceMTLModel
+from src.model.model import MLPClassifier, MLPMultiTaskHead, SequenceMTLModel
 
 class ChurnEnsemble:
     """

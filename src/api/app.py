@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR / "src"))
 
-from model import MLPClassifier
+from src.model.model import MLPClassifier
 
 
 logging.basicConfig(level=logging.INFO)

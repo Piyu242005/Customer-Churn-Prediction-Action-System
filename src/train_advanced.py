@@ -20,7 +20,7 @@ import os
 import sys
 
 # Import all training modules
-from model import create_model, create_mtl_model, create_sequence_mtl_model
+from src.model.model import create_model, create_mtl_model, create_sequence_mtl_model
 from train import MLPTrainer
 from train_mtl import MTLTrainer, prepare_mtl_data
 from train_sequence import SequenceMTLTrainer, load_and_preprocess_sequence_data
@@ -88,7 +88,7 @@ class AdvancedTrainingPipeline:
         data_path = self.config.get('data_path', 'Business_Analytics_Dataset_10000_Rows.csv')
         
         if self.model_type == 'mlp':
-            from data_preprocessing import load_and_preprocess_data
+            from src.data.data_preprocessing import load_and_preprocess_data
             return load_and_preprocess_data(data_path, self.config.get('test_size', 0.2), self.config.get('random_state', 42))
         
         elif self.model_type == 'mtl':

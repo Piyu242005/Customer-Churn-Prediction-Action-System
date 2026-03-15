@@ -45,7 +45,7 @@ class SequenceDataPreprocessor:
             
             db_url = self.data_path if self.data_path.startswith('sqlite:///') else f'sqlite:///{self.data_path}'
             
-            print(f"Loading data from database {db_url}...")
+            print(f"Loading data from src.data.database {db_url}...")
             engine = sqlalchemy.create_engine(db_url)
             query = "SELECT * FROM transactions"
             self.df = pd.read_sql(query, engine)

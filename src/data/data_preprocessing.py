@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from datetime import datetime, timedelta
 
-from database import DB_URL, init_db
+from src.data.database import DB_URL, init_db
 
 
 class ChurnDataPreprocessor:
@@ -40,7 +40,7 @@ class ChurnDataPreprocessor:
             import sqlalchemy
 
             db_url = self.data_path if self.data_path.startswith('sqlite:///') else f'sqlite:///{self.data_path}'
-            print(f"Loading data from database {db_url}...")
+            print(f"Loading data from src.data.database {db_url}...")
             engine = sqlalchemy.create_engine(db_url)
             self.df = pd.read_sql("SELECT * FROM customers", engine)
         else:

@@ -534,7 +534,7 @@ def apply_advanced_feature_engineering(X_train, X_test, y_train, feature_names=N
 
 if __name__ == "__main__":
     """Demo of feature engineering capabilities"""
-    from data_preprocessing import load_and_preprocess_data
+    from src.data.data_preprocessing import load_and_preprocess_data
     
     print("Feature Engineering Demo")
     print("="*60)

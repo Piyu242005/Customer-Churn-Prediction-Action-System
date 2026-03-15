@@ -19,7 +19,7 @@ import mlflow
 import mlflow.pytorch
 import os
 
-from model import create_sequence_mtl_model
+from src.model.model import create_sequence_mtl_model
 from sequence_preprocessing import load_and_preprocess_sequence_data
 
 

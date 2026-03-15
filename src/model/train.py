@@ -21,8 +21,8 @@ import mlflow
 import mlflow.pytorch
 import os
 
-from model import create_model
-from data_preprocessing import load_and_preprocess_data
+from src.model.model import create_model
+from src.data.data_preprocessing import load_and_preprocess_data
 
 
 class MLPTrainer:

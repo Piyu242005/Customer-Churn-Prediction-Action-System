@@ -616,8 +616,8 @@ def main():
     """
     Main comparison script
     """
-    from data_preprocessing import load_and_preprocess_data
-    from model import MLPClassifier
+    from src.data.data_preprocessing import load_and_preprocess_data
+    from src.model.model import MLPClassifier
     
     print("="*60)
     print("BASELINE MODEL COMPARISON")

@@ -21,17 +21,17 @@ import matplotlib
 matplotlib.use('Agg')
 
 # Import project modules
-from data_preprocessing import load_and_preprocess_data
-from model import create_model
+from src.data.data_preprocessing import load_and_preprocess_data
+from src.model.model import create_model
 from train import MLPTrainer, optimize_hyperparameters
-from evaluate import (
+from src.model.evaluate import (
     evaluate_model, plot_confusion_matrix, plot_roc_curve, 
     plot_precision_recall_curve, plot_threshold_analysis,
     plot_calibration_curve, plot_prediction_distribution,
     plot_error_analysis, calculate_advanced_metrics,
     calculate_business_metrics, generate_comprehensive_report
 )
-from feature_engineering import apply_advanced_feature_engineering, FeatureEngineer
+from src.data.feature_engineering import apply_advanced_feature_engineering, FeatureEngineer
 from baseline_comparison import run_comprehensive_comparison
 from explainability import generate_shap_report
 
