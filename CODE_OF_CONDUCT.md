@@ -1,176 +1,103 @@
-# Code of Conduct
 
-## Our Pledge
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.
+## 🧠 Neural Network Churn Classifier — Project Overview
 
-We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
+### What Is It?
 
----
-
-## Our Standards
-
-### Examples of behavior that contributes to a positive environment for our community include:
-
-* Demonstrating empathy and kindness toward other people
-* Being respectful of differing opinions, viewpoints, and experiences
-* Giving and gracefully accepting constructive feedback
-* Accepting responsibility and apologizing to those affected by our mistakes, and learning from the experience
-* Focusing on what is best not just for us as individuals, but for the overall community
-* Using welcoming and inclusive language
-* Being patient with newcomers and those learning
-* Providing helpful and constructive code reviews
-* Sharing knowledge and helping others learn machine learning concepts
-
-### Examples of unacceptable behavior include:
-
-* The use of sexualized language or imagery, and sexual attention or advances of any kind
-* Trolling, insulting or derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or email address, without their explicit permission
-* Submitting intentionally malicious or low-quality contributions
-* Spamming issues or pull requests
-* Other conduct which could reasonably be considered inappropriate in a professional setting
+This is a **production-ready customer churn prediction system** built by Piyush Ramteke. It uses a custom **Multi-Layer Perceptron (MLP)** neural network in PyTorch to predict whether a customer is likely to stop doing business with a company ("churn"). The model is trained on 10,000 customer records and achieves **89% accuracy**.
 
 ---
 
-## Enforcement Responsibilities
+### 🎯 The Business Problem
 
-Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
-
-Community leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.
-
----
-
-## Scope
-
-This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Examples of representing our community include:
-
-* Using an official project e-mail address
-* Posting via an official social media account
-* Acting as an appointed representative at an online or offline event
-* Contributing to the project repository (issues, pull requests, discussions)
-* Participating in project-related forums, chats, or meetings
-
-This Code of Conduct also applies to behavior outside of community spaces when such behavior has the potential to adversely affect the safety and well-being of community members.
+**Customer churn** = customers leaving or becoming inactive. This is a huge business challenge because:
+- Retaining a customer costs 5–25x less than acquiring a new one
+- Lost customers mean lost recurring revenue
+- Companies need to know *who* is at risk before they leave, so they can intervene
 
 ---
 
-## Reporting Guidelines
+### 🏗️ How the Model Works
 
-### Reporting an Incident
+The MLP takes **16 engineered features** as input and outputs a churn probability (0 = active, 1 = churned):
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at:
+```
+Input (16 features)
+    → Hidden Layer 1: 128 neurons + ReLU + Dropout(30%)
+    → Hidden Layer 2: 64 neurons  + ReLU + Dropout(30%)
+    → Hidden Layer 3: 32 neurons  + ReLU + Dropout(30%)
+    → Output: 1 neuron + Sigmoid → Churn probability
+```
 
-**📧 Email:** [piyu.143247@gmail.com](mailto:piyu.143247@gmail.com)  
-**🐙 GitHub:** [@Piyu242005](https://github.com/Piyu242005)
-
-All complaints will be reviewed and investigated promptly and fairly.
-
-### What to Include in Your Report
-
-When reporting an incident, please include:
-
-1. **Your contact information** (so we can follow up with you)
-2. **Names (usernames) of individuals involved** (including witnesses if any)
-3. **Description of the incident**, including:
-   - What happened
-   - Where it happened (issue number, PR, chat, etc.)
-   - When it happened
-   - Context and any relevant screenshots or links
-4. **Any additional information** that may be helpful
-
-### Confidentiality
-
-All community leaders are obligated to respect the privacy and security of the reporter of any incident. We will keep your identity confidential to the extent possible while investigating and resolving the issue.
+**Key design choices:**
+- **ReLU activation** for non-linearity and fast training
+- **30% Dropout** to prevent overfitting
+- **Adam optimizer** with learning rate scheduling
+- **Binary Cross-Entropy** as the loss function
+- **Early stopping** (patience = 15 epochs) to stop training at the right time
 
 ---
 
-## Enforcement Process
+### 📊 Features Used
 
-Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:
+The dataset is transactional, so features are engineered from raw purchase data:
 
-### 1. Correction
+**Numerical:** total orders, total revenue, average revenue, revenue std, total profit, average profit, average discount, total quantity, average quantity, days since last purchase, customer lifetime (days), purchase frequency
 
-**Community Impact:** Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.
+**Categorical (encoded):** region, product category, customer segment, payment method
 
-**Consequence:** A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.
-
-### 2. Warning
-
-**Community Impact:** A violation through a single incident or series of actions.
-
-**Consequence:** A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as external channels like social media. Violating these terms may lead to a temporary or permanent ban.
-
-### 3. Temporary Ban
-
-**Community Impact:** A serious violation of community standards, including sustained inappropriate behavior.
-
-**Consequence:** A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.
-
-### 4. Permanent Ban
-
-**Community Impact:** Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.
-
-**Consequence:** A permanent ban from any sort of public interaction within the community.
+**Churn label** is defined as: inactive for 90+ days, OR in the bottom 30% profit tier, OR fewer than 3 orders with 60+ days of inactivity.
 
 ---
 
-## Enforcement Guidelines
+### 📈 Performance
 
-When reviewing reports, community leaders will consider:
+| Model | Accuracy | F1-Score | ROC-AUC |
+|---|---|---|---|
+| **MLP (this project)** | **89%** | **0.86** | **0.92** |
+| XGBoost | 87% | 0.83 | 0.90 |
+| Random Forest | 85% | 0.81 | 0.88 |
+| Logistic Regression | 78% | 0.73 | 0.82 |
 
-* **Intent:** Was the behavior intentional or accidental?
-* **Impact:** What was the impact on the community and individuals?
-* **History:** Is this a first offense or part of a pattern?
-* **Response:** How did the person respond when confronted?
-* **Apology:** Was a genuine apology offered?
-
-The goal of enforcement is education and behavior change, not punishment. However, repeated violations or severe misconduct will result in stronger consequences.
-
----
-
-## Appeals
-
-If you feel you have been unfairly accused of violating this Code of Conduct, you may appeal the decision by contacting the project maintainer at the email address listed above. Please include:
-
-* A description of your appeal
-* Any relevant context or evidence
-* Why you believe the decision was incorrect
-
-Appeals will be reviewed within 7 business days.
+It correctly identifies **829 out of 942 churned customers** (88% recall) with 87% precision.
 
 ---
 
-## Attribution
+### 🗂️ Project Structure
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1, available at [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html).
+This is not just a notebook — it's a full ML engineering project with:
 
-Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
-
-For answers to common questions about this code of conduct, see the FAQ at [https://www.contributor-covenant.org/faq](https://www.contributor-covenant.org/faq). Translations are available at [https://www.contributor-covenant.org/translations](https://www.contributor-covenant.org/translations).
-
----
-
-## Contact Information
-
-**Project Maintainer:** Piyush Ramteke  
-**GitHub:** [@Piyu242005](https://github.com/Piyu242005)  
-**Email:** [your.email@example.com](mailto:your.email@example.com)  
-**Repository:** [Neural-Network-Churn-Classifier--MLP](https://github.com/Piyu242005/Neural-Network-Churn-Classifier--MLP)
+- **`Neural_Network_Churn_Classifier.ipynb`** — the full training + analysis notebook
+- **`model.py`** — MLP architecture definition
+- **`train.py`** — automated training script
+- **`evaluate.py`** — metrics and visualizations
+- **`app.py`** — Flask REST API for real-time predictions
+- **`dashboard.py`** — Streamlit interactive dashboard
+- **`pipeline.py`** — end-to-end automation
+- **`explainability.py`** — SHAP/LIME model interpretability
+- **`Dockerfile` + `docker-compose.yml`** — containerized deployment
 
 ---
 
-## Version History
+### 🚀 Deployment Options
 
-* **Version 1.0** (March 1, 2026) - Initial Code of Conduct based on Contributor Covenant 2.1
+1. **Jupyter Notebook** — for learning and experimentation
+2. **Flask REST API** — send customer data via HTTP POST, get back a churn probability + risk level
+3. **Streamlit Dashboard** — interactive UI for demos and business stakeholders
+4. **Docker** — containerized and cloud-ready (AWS, Azure, GCP, Heroku)
 
 ---
 
-<div align="center">
+### 💼 Real-World Use Cases
 
-### 🤝 Building an Inclusive ML Community Together
+This kind of system is used in:
+- **E-commerce** — identify customers about to stop buying
+- **SaaS** — predict subscription cancellations before they happen
+- **Telecom** — forecast contract non-renewals
+- **Banking** — detect account closure risk
 
-*Thank you for helping make this a welcoming, inclusive, and productive space for everyone interested in machine learning and data science.*
+---
 
-</div>
+### 🌟 What Makes It Stand Out
+
+This goes well beyond a typical academic notebook — it includes modular code, saved model artifacts (`*.pth`, `*.pkl`), a REST API, a visual dashboard, Docker support, and SHAP-based model explainability. It's a strong end-to-end portfolio project demonstrating both ML engineering and MLOps awareness.
