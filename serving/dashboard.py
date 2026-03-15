@@ -17,8 +17,8 @@ warnings.filterwarnings('ignore')
 # 1. PAGE CONFIGURATION & CUSTOM CSS
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Churn Intelligence Platform",
-    page_icon="🤖",
+    page_title="Churn AI · Piyush Ramteke",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -31,7 +31,7 @@ st.markdown("""
         background-color: #0e1117;
         color: #ffffff;
     }
-    
+
     /* Header Banner */
     .header-banner {
         background: linear-gradient(135deg, #1e2130 0%, #0e1117 50%, #1a1d2e 100%);
@@ -126,15 +126,6 @@ st.markdown("""
         background: linear-gradient(90deg, #00d4ff, transparent);
         margin: 30px 0;
         opacity: 0.5;
-    }
-    
-    .footer {
-        text-align: center;
-        padding: 20px;
-        color: #9ca3af;
-        font-size: 0.85rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        margin-top: 50px;
     }
     
     /* Page intro animation */
@@ -264,10 +255,11 @@ def predict_probability(features_dict):
 
 def render_metric_card(title, value, badge_text, border_color, badge_color="#00ff88", badge_bg="rgba(0, 255, 136, 0.2)"):
     return f"""
-    <div style="background-color: #1e2130; border-radius: 12px; border-left: 4px solid {border_color}; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s ease; margin-bottom: 20px;">
+    <div style="position: relative; background-color: #1e2130; border-radius: 12px; border-left: 4px solid {border_color}; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s ease; margin-bottom: 20px;">
         <div style="color: #9ca3af; font-size: 0.85rem; font-weight: 600;">{title}</div>
         <div style="color: white; font-size: 2.5rem; font-weight: bold; margin: 10px 0;">{value}</div>
         <div style="background: {badge_bg}; color: {badge_color}; padding: 4px 12px; border-radius: 12px; display: inline-block; font-size: 0.8rem; font-weight: bold;">{badge_text}</div>
+        <div style="position: absolute; bottom: 8px; right: 12px; font-size: 0.6rem; color: rgba(0, 212, 255, 0.15); font-weight: bold; pointer-events: none;">PR</div>
     </div>
     """
 
@@ -310,10 +302,162 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("**API Endpoint**")
 st.sidebar.code("http://localhost:5000/predict", language="bash")
 
+st.sidebar.markdown("""
+<div style="background: #1a1d2e; border-top: 2px solid #00d4ff; border-radius: 8px; padding: 15px; margin-top: 30px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 0 15px rgba(0,212,255,0.2)'" onmouseout="this.style.boxShadow='0 4px 6px rgba(0,0,0,0.2)'">
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+        <div style="background: rgba(0,212,255,0.1); color: #00d4ff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; border: 1px solid rgba(0,212,255,0.3);">PR</div>
+        <div style="text-align: left;">
+            <div style="font-size: 0.7rem; color: #9ca3af;">👨‍💻 Built by</div>
+            <div style="font-size: 0.9rem; font-weight: bold; color: white;">Piyush Ramteke</div>
+            <a href="https://github.com/Piyu242005" target="_blank" style="font-size: 0.8rem; color: #00d4ff; text-decoration: none;">@Piyu242005</a>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+        <a href="https://github.com/Piyu242005" target="_blank" style="text-decoration:none; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 5px; color: #d1d5db; font-size: 0.8rem; transition: background 0.3s;" onmouseover="this.style.background='rgba(0,212,255,0.1)'; this.style.color='#00d4ff'" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='#d1d5db'">🔗 GitHub</a>
+        <a href="https://linkedin.com/in/piyush-ramteke" target="_blank" style="text-decoration:none; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 5px; color: #d1d5db; font-size: 0.8rem; transition: background 0.3s;" onmouseover="this.style.background='rgba(0,212,255,0.1)'; this.style.color='#00d4ff'" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='#d1d5db'">💼 LinkedIn</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 
 # -----------------------------------------------------------------------------
 # 5. MAIN CONTENT RENDERER
 # -----------------------------------------------------------------------------
+
+@st.dialog("ℹ️ About This Project")
+def show_about_dialog():
+    st.markdown("""
+    <style>
+        [data-testid="stModal"] {
+            background: rgba(0, 0, 0, 0.6) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            z-index: 999 !important;
+        }
+        [data-testid="stModal"] [data-testid="stDialog"] {
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 20px !important;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(0, 212, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+            padding: 32px !important;
+            max-width: 480px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        [data-testid="stModal"] [data-testid="stDialog"] h2 {
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
+            color: white !important;
+        }
+        [data-testid="stModal"] button[title="Close"], [data-testid="stModal"] button[aria-label="Close"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50% !important;
+            width: 32px !important;
+            height: 32px !important;
+            color: white !important;
+            transition: all 0.2s ease !important;
+        }
+        [data-testid="stModal"] button[title="Close"]:hover, [data-testid="stModal"] button[aria-label="Close"]:hover {
+            background: rgba(255, 77, 79, 0.3) !important;
+            border-color: red !important;
+        }
+        .glass-link {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin: 4px 0;
+            width: 100%;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+        .glass-link:hover {
+            background: rgba(0, 212, 255, 0.12);
+            border-color: rgba(0, 212, 255, 0.4);
+            transform: translateX(4px);
+        }
+    </style>
+
+    <div style="position: relative; z-index: 1;">
+        <!-- Glassmorphism Ambient Glow -->
+        <div style="width: 120px; height: 120px; background: rgba(0, 212, 255, 0.15); border-radius: 50%; filter: blur(40px); position: absolute; top: -20px; left: -20px; z-index: -1;"></div>
+        <div style="width: 100px; height: 100px; background: rgba(168, 85, 247, 0.12); border-radius: 50%; filter: blur(35px); position: absolute; bottom: -15px; right: -15px; z-index: -1;"></div>
+
+        <!-- Project Title Section -->
+        <div style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <div style="font-size: 1rem; font-weight: 600; color: rgba(0, 212, 255, 0.9);">🧠 Churn Intelligence Platform</div>
+        </div>
+
+        <!-- Developer Section -->
+        <div style="margin-bottom: 20px;">
+            <div style="font-size: 0.65rem; letter-spacing: 0.15rem; color: #00d4ff; font-weight: 700; margin-bottom: 10px;">👨‍💻 DEVELOPER</div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 52px; height: 52px; background: linear-gradient(135deg, #00d4ff, #0891b2); border-radius: 50%; border: 2px solid rgba(0, 212, 255, 0.4); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); font-size: 1.1rem; font-weight: 800; color: white; display: flex; align-items: center; justify-content: center; margin-right: 14px;">PR</div>
+                <div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: white;">Piyush Ramteke</div>
+                    <div style="font-size: 0.8rem; color: rgba(156, 163, 175, 0.9);">Data Science & ML Engineer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Links -->
+        <div style="margin-bottom: 20px;">
+            <a href="https://github.com/Piyu242005" target="_blank" rel="noopener noreferrer" class="glass-link">🔗 GitHub: @Piyu242005</a>
+            <a href="https://linkedin.com/in/piyush-ramteke" target="_blank" rel="noopener noreferrer" class="glass-link">💼 LinkedIn: piyush-ramteke</a>
+            <div class="glass-link" style="cursor: default;">📧 Email: Get in touch via LinkedIn!</div>
+        </div>
+
+        <!-- Divider -->
+        <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent); margin: 18px 0;"></div>
+
+        <!-- Tech Stack Section -->
+        <div style="margin-bottom: 20px;">
+            <div style="font-size: 0.75rem; color: #00d4ff; font-weight: 700; letter-spacing: 0.1rem; margin-bottom: 10px;">🛠️ Tech Stack</div>
+            <div>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">PyTorch</span>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">Flask</span>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">Streamlit</span>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">Scikit-learn</span>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">SHAP</span>
+                <span style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: rgba(0, 212, 255, 0.85); display: inline-block; margin: 3px;">Docker</span>
+            </div>
+        </div>
+
+        <!-- Project Stats Section -->
+        <div style="margin-bottom: 20px;">
+            <div style="font-size: 0.75rem; color: #00d4ff; font-weight: 700; letter-spacing: 0.1rem; margin-bottom: 10px;">📊 Project Stats</div>
+            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 8px 12px; margin: 4px 0; border-left: 3px solid #00d4ff; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">• 10,000 training samples</div>
+            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 8px 12px; margin: 4px 0; border-left: 3px solid #00d4ff; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">• 89% model accuracy</div>
+            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 8px 12px; margin: 4px 0; border-left: 3px solid #00d4ff; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">• 16 engineered features</div>
+            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 8px 12px; margin: 4px 0; border-left: 3px solid #00d4ff; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">• 5 deployment methods</div>
+            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 8px 12px; margin: 4px 0; border-left: 3px solid #00d4ff; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">• &lt;10ms inference time</div>
+        </div>
+
+        <!-- Last Updated Row -->
+        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(156, 163, 175, 0.7);">
+            <span>📅 March 2026 · MIT License</span>
+            <span>© Piyush Ramteke</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+colA, colB = st.columns([9, 1])
+with colB:
+    if st.button("ℹ️ About", use_container_width=True):
+        show_about_dialog()
+
+
 # Global Header
 ts = datetime.now().strftime("%Y-%m-%d %H:%M")
 st.markdown(f"""
@@ -332,7 +476,8 @@ st.markdown(f"""
         <br/>
         <div style="color: #d1d5db; font-size: 0.85rem; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
             <div class="pulse-dot" style="width: 10px; height: 10px; background-color: #00ff88; border-radius: 50%;"></div>
-            Online &nbsp;·&nbsp; <span style="opacity: 0.6;">{ts}</span>
+            Online &nbsp;·&nbsp; <span style="opacity: 0.6;">{ts}</span> &nbsp;|&nbsp;
+            <a href="https://github.com/Piyu242005" target="_blank" style="color: #6b7280; font-style: italic; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#00d4ff'; this.style.textDecoration='underline'" onmouseout="this.style.color='#6b7280'; this.style.textDecoration='none'">🧑‍🔬 Developed by Piyush Ramteke</a>
         </div>
     </div>
 </div>
@@ -360,7 +505,7 @@ st.markdown('<div class="page-reveal">', unsafe_allow_html=True)
 # PAGE 1: EXECUTIVE OVERVIEW
 # =============================================================================
 if selected_page == "🏢 Executive Overview":
-    with st.spinner("💭 Crunching the numbers..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Crunching the numbers..."):
         
         c1, c2, c3, c4 = st.columns(4)
         with c1: st.markdown(render_metric_card("Accuracy", "89%", "↑ +11% vs baseline", border_color="#00d4ff"), unsafe_allow_html=True)
@@ -470,7 +615,7 @@ if selected_page == "🏢 Executive Overview":
 # PAGE 2: SINGLE INFERENCE
 # =============================================================================
 elif selected_page == "🎯 Single Inference":
-    with st.spinner("🔮 Consulting the oracle..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Consulting the oracle..."):
         st.subheader("Single Customer Inference")
         st.markdown("<div style='color:#9ca3af; margin-bottom: 20px;'>Input customer metrics to predict absolute churn probability dynamically using the trained MLP weights.</div>", unsafe_allow_html=True)
         
@@ -517,7 +662,7 @@ elif selected_page == "🎯 Single Inference":
                 'Customer_Segment': segment, 'Payment_Method': payment
             }
             
-            with st.spinner("Processing deep network inference..."):
+            with st.spinner("🧠 Piyush Ramteke's Churn AI · Processing deep network inference..."):
                 prob, X_scaled = predict_probability(features)
                 
                 st.session_state.predictions_count += 1
@@ -609,7 +754,7 @@ elif selected_page == "🎯 Single Inference":
 # PAGE 3: BATCH PREDICTION
 # =============================================================================
 elif selected_page == "🗃 Batch Prediction":
-    with st.spinner("⏳ Preparing bulk pipeline..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Preparing bulk pipeline..."):
         st.subheader("Batch Prediction Pipeline")
         st.markdown("<div style='color:#9ca3af; margin-bottom: 20px;'>Process and analyze multiple customer records at scale through the predictive engine. Output standard CSV or robust PDF reporting.</div>", unsafe_allow_html=True)
         
@@ -700,7 +845,7 @@ elif selected_page == "🗃 Batch Prediction":
 # PAGE 4: WHAT-IF SIMULATOR
 # =============================================================================
 elif selected_page == "🕹 What-If Simulator":
-    with st.spinner("🕹 Loading parameter engine..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Loading parameter engine..."):
         st.subheader("What-If Analysis Simulator")
         st.markdown("<div style='color:#9ca3af; margin-bottom: 20px;'>Dynamically visualize retention thresholds using live evaluation simulations based entirely on predefined customer archetypes.</div>", unsafe_allow_html=True)
         
@@ -792,7 +937,7 @@ elif selected_page == "🕹 What-If Simulator":
 # PAGE 5: MODEL TELEMETRY
 # =============================================================================
 elif selected_page == "📈 Model Telemetry":
-    with st.spinner("🎢 Fetching global telemetrics..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Fetching global telemetrics..."):
         st.subheader("System Model Telemetry & Operations")
         st.markdown("<div style='color:#9ca3af; margin-bottom: 20px;'>Live statistics across the current inference session and metadata corresponding to internal learning properties natively extracted.</div>", unsafe_allow_html=True)
         
@@ -862,7 +1007,7 @@ elif selected_page == "📈 Model Telemetry":
 # PAGE 6: BUSINESS IMPACT
 # =============================================================================
 elif selected_page == "📊 Business Impact":
-    with st.spinner("📊 Calculating ROIs..."):
+    with st.spinner("🧠 Piyush Ramteke's Churn AI · Calculating ROIs..."):
         st.subheader("Economic Operations & ROI Simulator")
         st.markdown("<div style='color:#9ca3af; margin-bottom: 20px;'>Project long-term retention recovery using deterministic threshold evaluation and variable acquisition frameworks constraints.</div>", unsafe_allow_html=True)
         
@@ -924,4 +1069,23 @@ elif selected_page == "📊 Business Impact":
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<div class='footer'>🤖 Churn Intelligence Platform v2.0.0 | Built with PyTorch & Streamlit | © 2026 Piyush Ramteke</div>", unsafe_allow_html=True)
+st.markdown("""
+<div style="background: #1a1d2e; border-top: 1px solid rgba(0, 212, 255, 0.2); padding: 25px; text-align: center; margin-top: 50px; border-radius: 8px;">
+    <h3 style="color: white; font-weight: bold; margin-bottom: 5px; font-size: 1.2rem;">🧠 Customer Churn Intelligence Platform <span style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; vertical-align: middle; margin-left: 10px; border: 1px solid rgba(0,212,255,0.2);">v2.0.0</span></h3>
+    <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.05); width: 50%; margin: 15px auto;">
+    <div style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 10px;">
+        Built with ❤️ by <b style="color: white;">Piyush Ramteke</b> · <a href="https://github.com/Piyu242005" target="_blank" style="color: #00d4ff; text-decoration: none; transition: text-shadow 0.3s;" onmouseover="this.style.textShadow='0 0 8px rgba(0,212,255,0.6)'" onmouseout="this.style.textShadow='none'">@Piyu242005</a>
+    </div>
+    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 15px;">
+        <a href="https://github.com/Piyu242005" target="_blank" style="color: #d1d5db; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#d1d5db'">🔗 GitHub</a> <span style="color: #4b5563;">|</span>
+        <a href="https://linkedin.com/in/piyush-ramteke" target="_blank" style="color: #d1d5db; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#d1d5db'">💼 LinkedIn</a> <span style="color: #4b5563;">|</span>
+        <a href="mailto:your_email@example.com" target="_blank" style="color: #d1d5db; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#d1d5db'">📧 Contact</a>
+    </div>
+    <div style="color: #6b7280; font-size: 0.8rem; font-style: italic; margin-bottom: 5px;">
+        Powered by PyTorch · Streamlit · scikit-learn
+    </div>
+    <div style="color: #6b7280; font-size: 0.75rem;">
+        © 2026 Piyush Ramteke · MIT License
+    </div>
+</div>
+""", unsafe_allow_html=True)

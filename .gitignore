@@ -1,4 +1,6 @@
+# ==============================
 # Python
+# ==============================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,55 +22,59 @@ wheels/
 .installed.cfg
 *.egg
 
+# ==============================
 # Virtual Environment
+# ==============================
 venv/
 env/
 ENV/
 .venv
 
+# ==============================
 # Jupyter Notebook
+# ==============================
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
-# PyTorch
-*.pth
-*.pt
-*.ckpt
-
-# IDE
+# ==============================
+# IDE & OS
+# ==============================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
+Thumbs.db
 
-# Logs & Environment
+# ==============================
+# Logs & Secrets
+# ==============================
 *.log
 logs/
 .env
 .env.*
+secrets.py
+config_secret.py
 
-# Data
-*.csv
+# ==============================
+# Large / Unnecessary Data Files
+# (keep small CSVs, ignore large ones)
+# ==============================
 *.xlsx
 *.xls
-
-# Model Artifacts & Checkpoints
-*.pth
-*.pt
-*.ckpt
-*.pkl
-*.joblib
+# NOTE: Do NOT ignore *.csv if your dataset is needed
 
 # ==============================
-
-# ML Model Artifacts
+# Docker
+# ==============================
+.dockerignore
 
 # ==============================
-
-*.pth
-*.pt
-*.ckpt
-*.pkl
-*.joblib
+# Temporary Files
+# ==============================
+*.tmp
+*.bak
+*.swp
+temp/
+tmp/
