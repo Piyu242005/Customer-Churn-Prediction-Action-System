@@ -119,19 +119,29 @@ Actual  Active      245        12      ← 95.3% correct
 > 📌 The model correctly flags **935 of 942 churned customers**, with only 7 missed — enabling targeted retention campaigns before customers leave.
 
 <div align="center">
-  <img src="Assets/confusion_matrix.png" width="45%" style="margin-right: 2%">
-  <img src="Assets/roc_curve.png" width="45%">
 
-  <img src="Assets/precision_recall_curve.png" width="45%" style="margin-right: 2%">
-  <img src="Assets/business_impact.png" width="45%">
+<table>
+  <tr>
+    <td align="center"><img src="Assets/confusion_matrix.png" width="100%"><br/><sub><b>Confusion Matrix</b></sub></td>
+    <td align="center"><img src="Assets/roc_curve.png" width="100%"><br/><sub><b>ROC Curve</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Assets/precision_recall_curve.png" width="100%"><br/><sub><b>Precision-Recall Curve</b></sub></td>
+    <td align="center"><img src="Assets/business_impact.png" width="100%"><br/><sub><b>Business Impact</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Assets/training_curves.png" width="100%"><br/><sub><b>Training Curves</b></sub></td>
+    <td align="center"><img src="Assets/error_analysis.png" width="100%"><br/><sub><b>Error Analysis</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Assets/calibration_curve.png" width="100%"><br/><sub><b>Calibration Curve</b></sub></td>
+    <td align="center"><img src="Assets/prediction_distribution.png" width="100%"><br/><sub><b>Prediction Distribution</b></sub></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="Assets/threshold_analysis.png" width="60%"><br/><sub><b>Threshold Analysis</b></sub></td>
+  </tr>
+</table>
 
-  <img src="Assets/training_curves.png" width="45%" style="margin-right: 2%">
-  <img src="Assets/error_analysis.png" width="45%">
-
-  <img src="Assets/calibration_curve.png" width="45%" style="margin-right: 2%">
-  <img src="Assets/prediction_distribution.png" width="45%">
-
-  <img src="Assets/threshold_analysis.png" width="60%">
 </div>
 
 ---
