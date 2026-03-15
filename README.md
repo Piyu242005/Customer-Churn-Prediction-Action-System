@@ -42,6 +42,7 @@
 - [Architecture](#-architecture)
 - [Pipeline Workflow](#Pipeline-Workflow)
 - [Features](#-feature-engineering)
+- **[📖 Step-by-Step Guide](docs/RUN_GUIDE.md)** ✨ Start here!
 - [Quick Start](#-quick-start)
 - [Usage](#-usage)
 - [API Reference](#-api-reference)
@@ -278,46 +279,42 @@ churned = (
 
 <br/>
 
-### Prerequisites
+> **👉 For detailed step-by-step instructions, see [📖 RUN_GUIDE.md](docs/RUN_GUIDE.md)**
 
-- Python 3.8+
-- pip
-- (Optional) Docker
-
-### 1 — Clone & install
+### TL;DR (5 steps)
 
 ```bash
+# 1. Clone & setup
 git clone https://github.com/Piyu242005/Neural-Network-Churn-Classifier--MLP.git
 cd Neural-Network-Churn-Classifier--MLP
-
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
-
 pip install -r requirements.txt
-```
 
-### 2 — Train the model
+# 2. Create database
+python src/database.py
 
-```bash
-# Recommended: full notebook walkthrough
-jupyter notebook Neural_Network_Churn_Classifier.ipynb
+# 3. Train model
+python src/pipeline.py
 
-# Or: automated script (run from project root)
-python -m src.pipeline --mode all
-```
+# 4. Start API (Terminal 1)
+uvicorn serving.app:app --port 5000
 
-### 3 — Serve predictions
-
-```bash
-# REST API  →  http://localhost:5000
-python serving/app.py
-
-# Dashboard  →  http://localhost:8501
+# 5. Start Dashboard (Terminal 2)
 streamlit run serving/dashboard.py
-
-# Docker (from docker/ folder)
-docker-compose -f docker/docker-compose.yml up
 ```
+
+**Result:**
+- 🌐 API Docs: http://127.0.0.1:5000/docs
+- 📊 Dashboard: http://localhost:8501
+
+### Docker Alternative
+
+```bash
+docker-compose up --build
+```
+
+**📌 For troubleshooting, configuration, and detailed workflows, see [📖 docs/RUN_GUIDE.md](docs/RUN_GUIDE.md)**
 
 </details>
 
