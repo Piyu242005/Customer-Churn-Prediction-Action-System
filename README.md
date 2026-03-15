@@ -119,14 +119,19 @@ Actual  Active      245        12      ← 95.3% correct
 > 📌 The model correctly flags **935 of 942 churned customers**, with only 7 missed — enabling targeted retention campaigns before customers leave.
 
 <div align="center">
-  <img src="confusion_matrix.png" width="45%" style="margin-right: 2%">
-  <img src="roc_curve.png" width="45%">
-  
-  <img src="precision_recall_curve.png" width="45%" style="margin-right: 2%">
-  <img src="business_impact.png" width="45%">
+  <img src="Assets/confusion_matrix.png" width="45%" style="margin-right: 2%">
+  <img src="Assets/roc_curve.png" width="45%">
 
-  <img src="training_curves.png" width="45%" style="margin-right: 2%">
-  <img src="error_analysis.png" width="45%">
+  <img src="Assets/precision_recall_curve.png" width="45%" style="margin-right: 2%">
+  <img src="Assets/business_impact.png" width="45%">
+
+  <img src="Assets/training_curves.png" width="45%" style="margin-right: 2%">
+  <img src="Assets/error_analysis.png" width="45%">
+
+  <img src="Assets/calibration_curve.png" width="45%" style="margin-right: 2%">
+  <img src="Assets/prediction_distribution.png" width="45%">
+
+  <img src="Assets/threshold_analysis.png" width="60%">
 </div>
 
 ---
@@ -135,7 +140,7 @@ Actual  Active      245        12      ← 95.3% correct
 
 <div align="center">
 
-<img src="churn_prediction_workflow.svg" alt="Churn Prediction Pipeline Workflow" width="680"/>
+<img src="Assets/churn_prediction_workflow.svg" alt="Churn Prediction Pipeline Workflow" width="680"/>
 
 </div>
 
