@@ -157,7 +157,7 @@ if uploaded_file is not None:
                 with dash_col1:
                     st.markdown("#### Risk Distribution")
                     risk_counts = results_df["Risk_Level"].value_counts().reindex(["High", "Medium", "Low"])
-                    st.bar_chart(risk_counts, color=["#ff4b4b", "#ffa32f", "#00cc96"])
+                    st.bar_chart(risk_counts)
 
                 with dash_col2:
                     st.markdown("#### Global Feature Importance (SHAP)")

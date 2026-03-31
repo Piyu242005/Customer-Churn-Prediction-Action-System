@@ -65,9 +65,13 @@ This project goes beyond traditional machine learning by transforming raw predic
 
 ## 💻 Dashboard Preview
 
-> **[📝 Add your App Screenshot Here]**
-> *Take a screenshot of your running Streamlit app and replace this section with the image link.*
-> `<img src="link_to_image" width="100%" alt="Dashboard" style="border-radius: 8px;" />`
+<div align="center">
+  <img src="Screenshot/Screenshot%202026-03-31%20202422.png" width="48%" alt="App Upload Interface" style="border-radius: 8px;" />
+  <img src="Screenshot/Screenshot%202026-03-31%20203546.png" width="48%" alt="Customer Data Preview" style="border-radius: 8px;" />
+  <br><br>
+  <img src="Screenshot/Screenshot%202026-03-31%20203704.png" width="48%" alt="High-Risk Alerts & Actions" style="border-radius: 8px;" />
+  <img src="Screenshot/Screenshot%202026-03-31%20204012.png" width="48%" alt="SHAP Business Analytics" style="border-radius: 8px;" />
+</div>
 
 ---
 
@@ -87,7 +91,7 @@ pip install -r requirements.txt
 streamlit run app/main.py
 ```
 
-> **Note:** Open the resulting `localhost` address in your browser, upload your target `.csv` data, and click "Predict Churn Risk".
+> **Note:** Open the resulting `localhost` address in your browser, upload the sample dataset located at [`Screenshot/Sample Data To Used/WA_Fn-UseC_-Telco-Customer-Churn.csv`](Screenshot/Sample%20Data%20To%20Used/WA_Fn-UseC_-Telco-Customer-Churn.csv), and click "Predict Churn Risk" to see the predictive engine in action!
 
 ---
 
