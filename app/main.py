@@ -9,7 +9,7 @@ import os
 st.set_page_config(page_title="Customer Churn Prediction & Action System", layout="wide")
 
 st.title(" Customer Churn Prediction & Action System")
-st.markdown("Upload customer data to predict churn risk using **XGBoost**. The system features real-time inference, actionable insights mapped to retention strategies, and **SHAP** explainability to uncover why a customer might churn.")
+st.markdown("Upload a customer churn dataset to predict churn risk using **XGBoost**. The system features real-time inference, actionable insights mapped to retention strategies, and **SHAP** explainability to uncover why a customer might churn.")
 
 # Preload Models
 @st.cache_resource
@@ -27,24 +27,34 @@ def load_models():
 
 model, scaler, expected_features = load_models()
 
+required_columns = [
+    "tenure", "MonthlyCharges", "TotalCharges", 
+    "Contract", "InternetService", "OnlineSecurity", "TechSupport"
+]
+
 # --- Sidebar ---
 st.sidebar.header("Upload Data")
 st.sidebar.markdown("Upload a CSV file containing at minimum the following features:")
-if expected_features:
-    for f in expected_features:
-        st.sidebar.markdown(f"- `{f}`")
+for f in required_columns:
+    st.sidebar.markdown(f"- `{f}`")
 
-uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
+uploaded_file = st.sidebar.file_uploader("Upload customer churn dataset", type=["csv"])
 
-# Define smart business logic for churn actions
+# Define smart business logic for churn actions based on Telco data
 def get_action(risk_level, top_driver):
     if risk_level == "High":
-        if top_driver in ["Discount_Rate", "Unit_Price", "Cost"]:
-            return "Offer a 15% discount or structural retention plan"
-        elif top_driver in ["Quantity", "Revenue", "Profit"]:
-            return "Provide proactive customer success / onboarding support"
+        if "Contract" in top_driver:
+            return "Offer a discounted long-term contract to lock-in"
+        elif "Charges" in top_driver:
+            return "Review pricing plan and offer competitive retention rate"
+        elif "InternetService" in top_driver or "TechSupport" in top_driver:
+            return "Proactively reach out with technical support check-up"
+        elif "OnlineSecurity" in top_driver:
+            return "Offer 3 months free of premium online security add-on"
+        elif "tenure" in top_driver:
+            return "Provide targeted onboarding support and loyalty bonuses"
         else:
-            return "Reach out with a personalized wellness check call"
+            return "Assign to dedicated customer success manager for immediate review"
     elif risk_level == "Medium":
         return "Send targeted promotional email and soft engagement"
     else:
@@ -55,8 +65,8 @@ if uploaded_file is not None:
     st.subheader("Data Preview")
     st.write(df.head())
 
-    # Check for missing features
-    missing_feats = [f for f in expected_features if f not in df.columns] if expected_features else []
+    # Check for missing features instead of model's expected features
+    missing_feats = [f for f in required_columns if f not in df.columns]
 
     if missing_feats:
         st.error(f"Missing required columns in CSV: {', '.join(missing_feats)}")
@@ -67,7 +77,22 @@ if uploaded_file is not None:
             with st.spinner("Running XGBoost inference and SHAP explanations..."):
                 
                 # Preprocessing
-                X_inference = df[expected_features].copy()
+                X_inference = df.copy()
+                
+                # Convert TotalCharges to numeric
+                X_inference['TotalCharges'] = pd.to_numeric(X_inference['TotalCharges'], errors='coerce').fillna(0)
+                
+                # Encode categorical columns safely
+                cat_cols = [c for c in ['Contract', 'InternetService', 'OnlineSecurity', 'TechSupport'] if c in X_inference.columns]
+                X_inference = pd.get_dummies(X_inference, columns=cat_cols, drop_first=True)
+                
+                # Align columns with what the model expects perfectly
+                if expected_features:
+                    for col in expected_features:
+                        if col not in X_inference.columns:
+                            X_inference[col] = 0
+                    X_inference = X_inference[expected_features]
+                
                 X_scaled = scaler.transform(X_inference)
                 
                 # Real ML Predictions
@@ -79,7 +104,7 @@ if uploaded_file is not None:
                 
                 # Find top driver per customer (feature with highest positive SHAP value push)
                 top_driver_indices = np.argmax(shap_values, axis=1)
-                top_drivers = [expected_features[idx] for idx in top_driver_indices]
+                top_drivers = [expected_features[idx] if expected_features else str(idx) for idx in top_driver_indices]
                 
                 # Append Results
                 results_df = df.copy()
@@ -117,7 +142,7 @@ if uploaded_file is not None:
                     color = "#ff4b4b" if val == "High" else "#ffa32f" if val == "Medium" else "#00cc96"
                     return f"color: {color}; font-weight: bold"
 
-                disp_cols = [c for c in ["Customer_ID", "Region", "Customer_Segment"] if c in df.columns] 
+                disp_cols = [c for c in ["customerID", "gender", "Partner"] if c in df.columns] 
                 if not disp_cols: disp_cols = list(df.columns[:2])
                 disp_cols += ["Churn_Prob_%", "Risk_Level", "Top_Reason", "Recommended_Action"]
                 
