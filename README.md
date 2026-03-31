@@ -29,7 +29,7 @@ This project goes beyond traditional machine learning by transforming raw predic
 ## ✨ System Workflow
 
 <div align="center">
-  <img src="https://mermaid.ink/img/pako:eNptkE1qwzAUhT-l6KqDrHbtZGFSSpOWkIQuxE0Qx0mNInwk-XCa0n_v2B90s-iue-45H-iS8KAQk62A29BvDUihz-s4D12rT9KzG8f2A9Z6228sX4tP2Ej3T0_j4y9Yl-yHl4mP9E-6w0w0O-lEDzRYW8yO0ZtD4_lV9a7AOPmP8PI1xUXjv8gBDBcXzMUdQVkITsofmVmAa-1zVRcfuBaa8Q?type=png" alt="Workflow" width="80%">
+  <img src="Screenshot/customer_churn_system_workflow.svg" alt="System Workflow Diagram" width="80%">
 </div>
 
 ---
@@ -49,8 +49,15 @@ This project goes beyond traditional machine learning by transforming raw predic
 ## 🛠️ Technology Stack
 
 <div align="center">
-  <img src="https://skillicons.dev/icons?i=python,pytorch,scikitlearn,pandas,numpy,git" /><br><br>
-  <i><b>Machine Learning:</b> XGBoost, PyTorch, Scikit-learn, SHAP <br> <b>Data & App:</b> Pandas, NumPy, Streamlit</i>
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-111111?style=for-the-badge&logo=xgboost&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+
 </div>
 
 ---
@@ -92,6 +99,14 @@ streamlit run app/main.py
 ```
 
 > **Note:** Open the resulting `localhost` address in your browser, upload the sample dataset located at [`Screenshot/Sample Data To Used/WA_Fn-UseC_-Telco-Customer-Churn.csv`](Screenshot/Sample%20Data%20To%20Used/WA_Fn-UseC_-Telco-Customer-Churn.csv), and click "Predict Churn Risk" to see the predictive engine in action!
+
+<div align="center">
+
+<a href="https://raw.githubusercontent.com/Piyu242005/Customer-Churn-Prediction-Action-System/main/Screenshot/Sample%20Data%20To%20Used/WA_Fn-UseC_-Telco-Customer-Churn.csv" download>
+  <img src="https://img.shields.io/badge/⬇️%20Download%20Sample%20Dataset-00FF66?style=for-the-badge&logo=databricks&logoColor=black" />
+</a>
+
+</div>
 
 ---
 
