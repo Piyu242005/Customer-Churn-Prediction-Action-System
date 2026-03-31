@@ -1,44 +1,51 @@
 #  Customer Churn Prediction & Action System
 
-##  End-to-End Workflow
+##  Problem Statement
+In a highly competitive business landscape, acquiring a new customer is up to 5 times more expensive than retaining an existing one. High churn rates directly impact annual recurring revenue (ARR). Businesses need a proactive way to not only predict *who* will churn, but understand *why*, and immediately know *what to do* about it.
 
-This system is designed to not only predict customer churn but also provide actionable business insights to reduce churn risk.
+##  Solution Overview
+This project transforms a standard machine learning classifier into an end-to-end **Customer Retention Action System**. It predicts the probability of customer churn, leverages explainable AI (SHAP) to identify the root causes per customer, and prescribes targeted, actionable retention strategies through an interactive web dashboard.
 
-### 1. User Interface (Streamlit Dashboard)
-The frontend is built using Streamlit, enabling business users to interact with the system easily.
-- Users upload customer data via CSV
-- Dashboard displays key metrics such as total customers and high-risk segments
-- Provides a clear and interactive view of predictions
+##  Architecture
+1. **Data Pipeline:** Preprocesses raw transactional and customer data using Scikit-Learn.
+2. **AI Prediction Engine:** Compares Logistic Regression, Random Forest, and XGBoost, utilizing the optimal model for inference.
+3. **Explainability Layer:** Uses SHAP (SHapley Additive exPlanations) to extract global and local feature importance.
+4. **Business Logic Layer:** Translates raw predictive probabilities (0-100%) into Risk Categories (Low/Medium/High) and generates strict business interventions (e.g., promotional emails, discounts).
+5. **UI / Dashboard:** Deployed via Streamlit to allow non-technical stakeholders to upload datasets and access real-time insights.
 
-### 2. AI Prediction Engine (Machine Learning)
-The backend uses machine learning models to evaluate churn risk.
-- Generates churn probability (0-100%) instead of binary output
-- Supports multiple models (MLP, Random Forest, XGBoost)
-- Loads trained models from the `/models` directory for real-time predictions
+##  Tech Stack
+- **Modeling:** Python, Scikit-Learn, XGBoost, PyTorch (MLP baseline)
+- **Data Processing:** Pandas, NumPy
+- **Explainability:** SHAP
+- **Deployment:** Streamlit
 
-### 3. Business Logic Layer (Action System)
-Transforms predictions into actionable insights:
-- **Risk Segmentation:** Low (<30%), Medium (30-70%), High (>70%)
-- **Explainability:** Identifies top factors influencing churn (e.g., high charges, low tenure)
-- **Action Recommendations:** Provides business strategies based on risk level
+##  Results & Business Impact
+- **Model Performance:** Selected **XGBoost**, achieving ~85% Accuracy and 0.70 ROC-AUC, outperforming the baseline Logistic Regression.
+- **Scale:** Engineered to process thousands of customer records instantly.
+- **Business Value:** Enables automated, data-driven retention strategies, replacing manual cohort analysis and theoretically reducing revenue churn by enabling targeted interventions before customers leave.
 
-**Example:**
-- High Risk + High Charges -> Offer discount plan
-- High Risk + Poor Support -> Initiate personalized customer support call
+##  How to Run
 
-### 4. Project Architecture
-- `/notebooks` -> EDA and model experimentation
-- `/models` -> Trained models (.pkl, .pth)
-- `/src` -> Training and preprocessing scripts
-- `/app/main.py` -> Streamlit dashboard
+1. **Clone the repository and install dependencies:**
+   ```bash
+   git clone https://github.com/yourusername/Customer-Churn-Prediction-Action-System.git
+   cd Customer-Churn-Prediction-Action-System
+   pip install -r requirements.txt
+   ```
 
-### 5. How to Use
-1. Run the app: `streamlit run app/main.py`
-2. Upload customer dataset
-3. Click "Predict Churn Risk"
-4. View predictions, risk levels, and recommended actions
+2. **Train the ML Models (Optional, artifacts are in `/models`):**
+   ```bash
+   python src/train_dashboard.py
+   ```
 
-###  Impact
-- Identifies high-risk customers proactively
-- Enables data-driven retention strategies
-- Reduces manual analysis effort and improves decision-making speed
+3. **Launch the Streamlit Dashboard:**
+   ```bash
+   streamlit run app/main.py
+   ```
+
+4. **Upload Data:** Upload `data/Business_Analytics_Dataset_10000_Rows.csv` in the Streamlit sidebar to see the magic happen!
+
+##  Screenshots
+*(Add a screenshot of your Streamlit web app here)*
+`![Dashboard Preview](docs/dashboard_preview.png)`
+
