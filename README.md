@@ -152,8 +152,10 @@ streamlit run app/main.py
 - 💻 **GitHub**: [Piyu242005](https://github.com/Piyu242005)
 - 📧 **Email**: [piyu.143247@gmail.com](piyu.143247@gmail.com)
 
-<br>
-
 <div align="center">
-  <b>⭐ If you find this repository useful, please consider giving it a star! ⭐</b>
-</div>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:24243e,50:302b63,100:0f0c29&height=140&section=footer&text=Built%20by%20Piyush&fontSize=22&fontColor=e0d7ff&fontAlignY=70&fontAlign=50" width="100%"/>
+
+[![GitHub](https://img.shields.io/badge/Follow%20%40Piyu242005-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Piyu242005)
+
+**Found this useful? Give it a** ⭐ **— it really helps!**
