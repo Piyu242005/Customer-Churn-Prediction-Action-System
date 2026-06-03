@@ -7,10 +7,13 @@
 
 <br>
 
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](#)
 [![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Enabled-00FF66.svg?style=for-the-badge&logo=scikit-learn&logoColor=black)](#)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B.svg?style=for-the-badge&logo=streamlit&logoColor=white)](#)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge&logo=github&logoColor=white)](#)
+[![CI](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/ci.yml/badge.svg)](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/ci.yml)
+[![Security](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/security.yml/badge.svg)](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/security.yml)
+[![Docker Build](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/docker.yml/badge.svg)](https://github.com/Piyu242005/Customer-Churn-Prediction-Action-System/actions/workflows/docker.yml)
 
 **An end-to-end AI system that predicts customer churn, identifies root causes via SHAP explainability, and recommends actionable retention strategies.**
 
