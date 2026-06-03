@@ -432,9 +432,7 @@ def main():
     if args.model_type == "compare" or args.compare_models:
         # Compare all models
         pipeline = AdvancedTrainingPipeline("mlp", config)
-        pipeline.compare_models(
-            ["mlp", "mtl", "sequence_lstm", "sequence_gru"]
-        )
+        pipeline.compare_models(["mlp", "mtl", "sequence_lstm", "sequence_gru"])
     else:
         # Train single model
         pipeline = AdvancedTrainingPipeline(args.model_type, config)
