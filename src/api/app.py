@@ -2,7 +2,6 @@
 
 from datetime import datetime
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -13,12 +12,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
-
 ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR / "src"))
 
 from src.model.model import MLPClassifier
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,7 +84,9 @@ def _load_checkpoint_model(model_path: Path) -> MLPClassifier:
 
     state_dict = checkpoint["model_state_dict"]
     linear_layers = [
-        key for key in state_dict.keys() if key.startswith("network") and key.endswith("weight")
+        key
+        for key in state_dict.keys()
+        if key.startswith("network") and key.endswith("weight")
     ]
     layer_indices = sorted({int(key.split(".")[1]) for key in linear_layers})
     hidden_dims = []
@@ -95,7 +94,9 @@ def _load_checkpoint_model(model_path: Path) -> MLPClassifier:
         hidden_dims.append(state_dict[f"network.{layer_idx}.weight"].shape[0])
 
     input_dim = state_dict[f"network.{layer_indices[0]}.weight"].shape[1]
-    model = MLPClassifier(input_dim=input_dim, hidden_dims=hidden_dims, dropout_rate=0.3)
+    model = MLPClassifier(
+        input_dim=input_dim, hidden_dims=hidden_dims, dropout_rate=0.3
+    )
     model.load_state_dict(state_dict)
     model.eval()
     return model
@@ -158,7 +159,9 @@ async def predict(request: PredictionRequest):
     features_dict = request.features.model_dump()
     missing = [feature for feature in FEATURE_NAMES if feature not in features_dict]
     if missing:
-        raise HTTPException(status_code=422, detail=f"Missing required features: {missing}")
+        raise HTTPException(
+            status_code=422, detail=f"Missing required features: {missing}"
+        )
 
     x = np.array([[features_dict[name] for name in FEATURE_NAMES]], dtype=np.float32)
     if SCALER is not None:

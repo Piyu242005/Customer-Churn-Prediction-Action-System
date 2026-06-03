@@ -12,7 +12,6 @@ import pandas as pd
 from sqlalchemy import Column, Float, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-
 DB_FILE = os.path.join("data", "churn_data.db")
 DB_URL = f"sqlite:///{DB_FILE}"
 

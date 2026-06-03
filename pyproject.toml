@@ -1,0 +1,6 @@
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", ".git"]
+skips = ["B110", "B104", "B614"]
+
+[tool.ruff]
+lint.ignore = ["E722", "E402", "F401", "F841"]

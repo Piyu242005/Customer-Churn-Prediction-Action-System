@@ -61,7 +61,7 @@ class DataDriftMonitor:
                             reference matrix `reference_X.npy` from
                             the same directory.
         """
-        scaler_path = os.path.join(artifacts_dir, "scaler.pkl")
+        os.path.join(artifacts_dir, "scaler.pkl")
         feature_names_path = os.path.join(artifacts_dir, "feature_names.pkl")
 
         if not os.path.exists(feature_names_path):
@@ -113,11 +113,13 @@ class DataDriftMonitor:
 
         result = report.as_dict()
         # Extract a compact summary for logging/alerting
-        data_drift = result.get("metrics", [])[0].get("result", {}).get(
-            "dataset_drift", False
+        data_drift = (
+            result.get("metrics", [])[0].get("result", {}).get("dataset_drift", False)
         )
-        drift_share = result.get("metrics", [])[0].get("result", {}).get(
-            "share_drifted_columns", 0.0
+        drift_share = (
+            result.get("metrics", [])[0]
+            .get("result", {})
+            .get("share_drifted_columns", 0.0)
         )
 
         summary = {
@@ -133,5 +135,3 @@ class DataDriftMonitor:
 
 
 __all__ = ["DataDriftMonitor"]
-
-
