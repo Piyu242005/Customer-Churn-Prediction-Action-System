@@ -19,7 +19,9 @@ sys.path.insert(0, str(ROOT))
 from src.retention import retention_action, risk_band, roi_estimate
 
 st.set_page_config(page_title="Customer Churn Action System", page_icon="📉", layout="wide")
-MODEL, SCALER, FEATURE_FILE = [ROOT / p for p in ("models/best_churn_model.pkl", "models/scaler.pkl", "models/feature_names.pkl")]
+MODEL = ROOT / "models/best_churn_model.pkl"
+SCALER = ROOT / "models/scaler.pkl"
+FEATURE_FILE = ROOT / "models/feature_names.pkl"
 REFERENCE = ROOT / "data/Business_Analytics_Dataset_10000_Rows.csv"
 
 @st.cache_resource
@@ -32,22 +34,47 @@ def load_artifacts():
 def load_reference():
     return pd.read_csv(REFERENCE) if REFERENCE.exists() else None
 
+@st.cache_data
+def make_guest_data(n=250):
+    rng = np.random.default_rng(2026)
+    d = pd.DataFrame({
+        "Order_ID": np.arange(1, n + 1),
+        "Customer_ID": [f"GUEST-{i:04d}" for i in range(1, n + 1)],
+        "Quantity": rng.integers(1, 11, n),
+        "Unit_Price": np.round(rng.uniform(20, 500, n), 2),
+        "Discount_Rate": np.round(rng.uniform(0, 0.30, n), 2),
+        "Region": rng.choice(["North", "South", "East", "West"], n),
+        "Product_Category": rng.choice(["Electronics", "Clothing", "Sports", "Beauty", "Home & Kitchen"], n),
+    })
+    d["Revenue"] = np.round(d.Quantity * d.Unit_Price * (1 - d.Discount_Rate), 2)
+    d["Cost"] = np.round(d.Revenue * rng.uniform(0.45, 0.82, n), 2)
+    d["Profit"] = np.round(d.Revenue - d.Cost, 2)
+    return d
+
 model, scaler, expected_features = load_artifacts()
-reference = load_reference()
 if model is None:
-    st.error("Model artifacts not found. Run `python src/train_dashboard.py` first.")
+    st.error("Model artifacts are missing. Run `python src/train_dashboard.py` first.")
     st.stop()
+FEATURES = list(expected_features)
+reference = load_reference()
 
 st.title("📉 Customer Churn Prediction & Action System")
 st.caption("Predict risk → explain why → recommend action → measure business impact")
 
-uploaded = st.sidebar.file_uploader("Upload customer CSV", type="csv")
-df = pd.read_csv(uploaded) if uploaded is not None else reference
-if df is None:
-    st.warning("Upload a CSV containing the model features.")
-    st.stop()
+st.sidebar.header("Demo / Data Input")
+mode = st.sidebar.radio("Choose mode", ["👤 Guest Demo", "📂 Upload Dataset"], index=0)
+if mode == "👤 Guest Demo":
+    df = make_guest_data()
+    st.sidebar.success("Guest mode is fully functional")
+    st.sidebar.caption("Synthetic data only — safe for public demos.")
+    st.info("👤 **Guest Demo Mode:** synthetic customer data is loaded automatically. All dashboard functions are enabled.")
+else:
+    uploaded = st.sidebar.file_uploader("Upload customer CSV", type="csv")
+    if uploaded is None:
+        st.info("Upload a CSV containing the model features, or switch to Guest Demo Mode.")
+        st.stop()
+    df = pd.read_csv(uploaded)
 
-FEATURES = list(expected_features)
 missing = [c for c in FEATURES if c not in df.columns]
 if missing:
     st.error(f"Missing model features: {', '.join(missing)}")
@@ -59,16 +86,20 @@ def prepare(data):
         x[c] = pd.to_numeric(x[c], errors="coerce")
     return x.fillna(x.median(numeric_only=True)).fillna(0)
 
-def predict(data):
-    x = prepare(data)
-    xs = scaler.transform(x)
-    probability = model.predict_proba(xs)[:, 1] * 100
-    values = shap.TreeExplainer(model).shap_values(xs)
+def explain_values(x_scaled):
+    values = shap.TreeExplainer(model).shap_values(x_scaled)
     if isinstance(values, list):
         values = values[-1]
     values = np.asarray(values)
     if values.ndim == 3:
         values = values[:, :, -1]
+    return values
+
+def predict(data):
+    x = prepare(data)
+    xs = scaler.transform(x)
+    probability = model.predict_proba(xs)[:, 1] * 100
+    values = explain_values(xs)
     drivers = [FEATURES[i] for i in np.argmax(values, axis=1)]
     out = data.copy()
     out["Churn_Prob_%"] = probability.round(2)
@@ -92,7 +123,7 @@ tabs = st.tabs(["🏠 Customer 360", "📊 Analytics", "🧠 Explainability", "�
 
 with tabs[0]:
     st.subheader("Customer 360")
-    ids = [c for c in ("customerID", "Customer_ID", "CustomerID", "Order_ID") if c in results]
+    ids = [c for c in ("Customer_ID", "Order_ID", "customerID") if c in results]
     idx = st.selectbox("Customer", results.index, format_func=(lambda i: str(results.loc[i, ids[0]])) if ids else None)
     row = results.loc[idx]
     a, b, c = st.columns(3)
@@ -109,13 +140,14 @@ with tabs[1]:
         st.markdown("#### Risk distribution")
         st.bar_chart(results["Risk_Level"].value_counts().reindex(["High", "Medium", "Low"]).fillna(0))
     with right:
-        st.markdown("#### Churn probability")
+        st.markdown("#### Churn probability distribution")
         st.bar_chart(results["Churn_Prob_%"].round().value_counts().sort_index())
     if reference is not None:
-        y = np.where((reference.Profit < 50) | ((reference.Discount_Rate > .2) & (reference.Quantity <= 2)), 1, 0)
+        ref = reference.copy()
+        y = np.where((ref.Profit < 50) | ((ref.Discount_Rate > .2) & (ref.Quantity <= 2)), 1, 0)
         rng = np.random.default_rng(42)
         y = np.where(rng.choice([0, 1], len(y), p=[.85, .15]) == 1, 1 - y, y)
-        x = prepare(reference)
+        x = prepare(ref)
         xt, xv, yt, yv = train_test_split(x, y, test_size=.2, random_state=42, stratify=y)
         s = StandardScaler(); xt = s.fit_transform(xt); xv = s.transform(xv)
         candidates = {"Logistic Regression": LogisticRegression(max_iter=1000), "Random Forest": RandomForestClassifier(n_estimators=150, random_state=42), "XGBoost": XGBClassifier(eval_metric="logloss", random_state=42)}
@@ -126,7 +158,7 @@ with tabs[1]:
         comparison = pd.DataFrame(rows).sort_values("ROC-AUC", ascending=False)
         st.dataframe(comparison.style.format({c: "{:.3f}" for c in comparison.columns[1:]}), use_container_width=True)
         st.bar_chart(comparison.set_index("Model")["ROC-AUC"])
-    cols = [c for c in ("customerID", "Customer_ID") if c in results] + ["Churn_Prob_%", "Risk_Level", "Top_Reason", "Recommended_Action"]
+    cols = ids + ["Churn_Prob_%", "Risk_Level", "Top_Reason", "Recommended_Action"]
     st.dataframe(results.sort_values("Churn_Prob_%", ascending=False)[cols].head(25), use_container_width=True)
 
 with tabs[2]:
@@ -191,20 +223,18 @@ with tabs[6]:
 
 with tabs[7]:
     st.subheader("Model & Data Monitoring")
-    if reference is None:
-        st.warning("Reference data unavailable.")
-    else:
-        ref, cur = prepare(reference), prepare(df)
-        rows = []
-        for feature in FEATURES:
-            mean_ref, mean_cur = ref[feature].mean(), cur[feature].mean()
-            std_ref = ref[feature].std() or 1.0
-            shift = abs(mean_cur - mean_ref) / std_ref
-            rows.append({"Feature": feature, "Reference mean": mean_ref, "Current mean": mean_cur, "Standardized shift": shift, "Status": "⚠️ Review" if shift > 1 else "✅ Stable"})
-        drift = pd.DataFrame(rows).sort_values("Standardized shift", ascending=False)
-        st.dataframe(drift, use_container_width=True)
-        st.bar_chart(drift.set_index("Feature")["Standardized shift"])
-        st.caption("Lightweight drift signal. Production monitoring should additionally track PSI/KS, missingness, label delay and live model performance.")
+    ref = reference if reference is not None else df
+    ref_x, cur_x = prepare(ref), prepare(df)
+    rows = []
+    for feature in FEATURES:
+        mean_ref, mean_cur = ref_x[feature].mean(), cur_x[feature].mean()
+        std_ref = ref_x[feature].std() or 1.0
+        shift = abs(mean_cur - mean_ref) / std_ref
+        rows.append({"Feature": feature, "Reference mean": mean_ref, "Current mean": mean_cur, "Standardized shift": shift, "Status": "⚠️ Review" if shift > 1 else "✅ Stable"})
+    drift = pd.DataFrame(rows).sort_values("Standardized shift", ascending=False)
+    st.dataframe(drift, use_container_width=True)
+    st.bar_chart(drift.set_index("Feature")["Standardized shift"])
+    st.caption("Guest mode uses synthetic data; uploaded datasets are compared against the repository reference dataset.")
 
 st.divider()
-st.caption("Streamlit • XGBoost • SHAP • Customer 360 • Batch scoring • What-if • ROI • Monitoring")
+st.caption("Streamlit • XGBoost • SHAP • Customer 360 • Guest Demo • Batch scoring • What-if • ROI • Monitoring")
