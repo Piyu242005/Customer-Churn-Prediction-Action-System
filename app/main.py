@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-
 import joblib
 import numpy as np
 import pandas as pd
@@ -20,24 +19,18 @@ sys.path.insert(0, str(ROOT))
 from src.retention import retention_action, risk_band, roi_estimate
 
 st.set_page_config(page_title="Customer Churn Action System", page_icon="📉", layout="wide")
-
-MODEL = ROOT / "models/best_churn_model.pkl"
-SCALER = ROOT / "models/scaler.pkl"
-FEATURES = ROOT / "models/feature_names.pkl"
+MODEL, SCALER, FEATURE_FILE = [ROOT / p for p in ("models/best_churn_model.pkl", "models/scaler.pkl", "models/feature_names.pkl")]
 REFERENCE = ROOT / "data/Business_Analytics_Dataset_10000_Rows.csv"
-
 
 @st.cache_resource
 def load_artifacts():
-    if not all(p.exists() for p in (MODEL, SCALER, FEATURES)):
+    if not all(p.exists() for p in (MODEL, SCALER, FEATURE_FILE)):
         return None, None, None
-    return joblib.load(MODEL), joblib.load(SCALER), joblib.load(FEATURES)
-
+    return joblib.load(MODEL), joblib.load(SCALER), joblib.load(FEATURE_FILE)
 
 @st.cache_data
 def load_reference():
     return pd.read_csv(REFERENCE) if REFERENCE.exists() else None
-
 
 model, scaler, expected_features = load_artifacts()
 reference = load_reference()
@@ -49,12 +42,8 @@ st.title("📉 Customer Churn Prediction & Action System")
 st.caption("Predict risk → explain why → recommend action → measure business impact")
 
 uploaded = st.sidebar.file_uploader("Upload customer CSV", type="csv")
-if uploaded is not None:
-    df = pd.read_csv(uploaded)
-elif reference is not None:
-    st.sidebar.info("Using repository demo dataset. Upload a CSV to score your own customers.")
-    df = reference.copy()
-else:
+df = pd.read_csv(uploaded) if uploaded is not None else reference
+if df is None:
     st.warning("Upload a CSV containing the model features.")
     st.stop()
 
@@ -64,15 +53,13 @@ if missing:
     st.error(f"Missing model features: {', '.join(missing)}")
     st.stop()
 
-
-def prepare(data: pd.DataFrame) -> pd.DataFrame:
+def prepare(data):
     x = data[FEATURES].copy()
     for c in FEATURES:
         x[c] = pd.to_numeric(x[c], errors="coerce")
     return x.fillna(x.median(numeric_only=True)).fillna(0)
 
-
-def predict(data: pd.DataFrame):
+def predict(data):
     x = prepare(data)
     xs = scaler.transform(x)
     probability = model.predict_proba(xs)[:, 1] * 100
@@ -90,10 +77,9 @@ def predict(data: pd.DataFrame):
     out["Recommended_Action"] = [retention_action(d, r) for d, r in zip(drivers, out["Risk_Level"])]
     return out, values
 
-
 results, shap_values = predict(df)
-high = int((results.Risk_Level == "High").sum())
-avg_risk = float(results.Churn_Prob_%.mean())
+high = int((results["Risk_Level"] == "High").sum())
+avg_risk = float(results["Churn_Prob_%"].mean())
 revenue_risk = float(results["Revenue"].sum() * avg_risk / 100) if "Revenue" in results else 0.0
 
 m1, m2, m3, m4 = st.columns(4)
@@ -102,18 +88,12 @@ m2.metric("High Risk", f"{high:,}")
 m3.metric("Average Churn Risk", f"{avg_risk:.1f}%")
 m4.metric("Revenue at Risk", f"${revenue_risk:,.0f}" if revenue_risk else "N/A")
 
-# 1 Customer 360 | 2 Analytics/model comparison | 3 SHAP | 4 threshold | 5 batch | 6 what-if | 9 monitoring | 10 ROI
-# FastAPI/API layer is intentionally not added.
 tabs = st.tabs(["🏠 Customer 360", "📊 Analytics", "🧠 Explainability", "🎯 Threshold", "📦 Batch", "🔬 What-if", "💰 ROI", "🛡️ Monitoring"])
 
 with tabs[0]:
     st.subheader("Customer 360")
     ids = [c for c in ("customerID", "Customer_ID", "CustomerID", "Order_ID") if c in results]
-    if ids:
-        id_col = ids[0]
-        idx = st.selectbox("Customer", results.index, format_func=lambda i: str(results.loc[i, id_col]))
-    else:
-        idx = st.selectbox("Customer row", results.index)
+    idx = st.selectbox("Customer", results.index, format_func=(lambda i: str(results.loc[i, ids[0]])) if ids else None)
     row = results.loc[idx]
     a, b, c = st.columns(3)
     a.metric("Churn probability", f"{row['Churn_Prob_%']:.1f}%")
@@ -131,12 +111,10 @@ with tabs[1]:
     with right:
         st.markdown("#### Churn probability")
         st.bar_chart(results["Churn_Prob_%"].round().value_counts().sort_index())
-
     if reference is not None:
         y = np.where((reference.Profit < 50) | ((reference.Discount_Rate > .2) & (reference.Quantity <= 2)), 1, 0)
         rng = np.random.default_rng(42)
-        noise = rng.choice([0, 1], len(y), p=[.85, .15])
-        y = np.where(noise == 1, 1 - y, y)
+        y = np.where(rng.choice([0, 1], len(y), p=[.85, .15]) == 1, 1 - y, y)
         x = prepare(reference)
         xt, xv, yt, yv = train_test_split(x, y, test_size=.2, random_state=42, stratify=y)
         s = StandardScaler(); xt = s.fit_transform(xt); xv = s.transform(xv)
@@ -148,9 +126,7 @@ with tabs[1]:
         comparison = pd.DataFrame(rows).sort_values("ROC-AUC", ascending=False)
         st.dataframe(comparison.style.format({c: "{:.3f}" for c in comparison.columns[1:]}), use_container_width=True)
         st.bar_chart(comparison.set_index("Model")["ROC-AUC"])
-
     cols = [c for c in ("customerID", "Customer_ID") if c in results] + ["Churn_Prob_%", "Risk_Level", "Top_Reason", "Recommended_Action"]
-    st.markdown("#### Highest-risk customers")
     st.dataframe(results.sort_values("Churn_Prob_%", ascending=False)[cols].head(25), use_container_width=True)
 
 with tabs[2]:
@@ -161,42 +137,43 @@ with tabs[2]:
     local = pd.DataFrame({"Feature": FEATURES, "SHAP impact": shap_values[idx], "Value": prepare(results).loc[idx].values})
     local = local.iloc[local["SHAP impact"].abs().argsort()[::-1]]
     st.dataframe(local, use_container_width=True)
-    st.caption("Positive SHAP = pushes toward churn. Negative SHAP = pushes away from churn.")
+    st.caption("Positive SHAP pushes toward churn; negative SHAP pushes away from churn.")
 
 with tabs[3]:
-    st.subheader("Threshold Optimization")
+    st.subheader("Business Threshold Optimization")
     threshold = st.slider("High-risk threshold (%)", 10, 95, 70)
     targeted = results["Churn_Prob_%"] >= threshold
-    t1, t2 = st.columns(2)
-    t1.metric("Customers targeted", int(targeted.sum()))
-    t2.metric("Target share", f"{targeted.mean()*100:.1f}%")
+    a, b = st.columns(2)
+    a.metric("Customers targeted", int(targeted.sum()))
+    b.metric("Target share", f"{targeted.mean()*100:.1f}%")
     if "Churn" in df.columns:
-        actual = pd.to_numeric(df.Churn, errors="coerce").fillna(0).astype(int)
+        actual = pd.to_numeric(df["Churn"], errors="coerce").fillna(0).astype(int)
         pred = targeted.astype(int)
         st.write({"Precision": round(precision_score(actual, pred, zero_division=0), 3), "Recall": round(recall_score(actual, pred, zero_division=0), 3), "F1": round(f1_score(actual, pred, zero_division=0), 3)})
     else:
-        st.info("For threshold validation, upload labeled data with a `Churn` column.")
+        st.info("Upload labeled data with a `Churn` column to validate the threshold.")
 
 with tabs[4]:
-    st.subheader("Batch Prediction")
+    st.subheader("Batch Prediction & Export")
     risk_filter = st.multiselect("Export risk tiers", ["High", "Medium", "Low"], default=["High", "Medium", "Low"])
-    export = results[results.Risk_Level.isin(risk_filter)]
+    export = results[results["Risk_Level"].isin(risk_filter)]
     st.dataframe(export.head(100), use_container_width=True)
     st.download_button("⬇️ Download scored CSV", export.to_csv(index=False), "customer_churn_predictions.csv", "text/csv")
 
 with tabs[5]:
     st.subheader("What-if Churn Simulator")
-    st.caption("Change customer attributes and see the predicted risk instantly.")
     defaults = prepare(df).median()
     values = {}
     boxes = st.columns(3)
     for i, feature in enumerate(FEATURES):
         with boxes[i % 3]:
             values[feature] = st.number_input(feature, value=float(defaults[feature]), step=1.0, key=f"whatif_{feature}")
-    one = pd.DataFrame([values]); risk = float(model.predict_proba(scaler.transform(one[FEATURES]))[0, 1] * 100); band = risk_band(risk)
-    w1, w2 = st.columns(2)
-    w1.metric("Simulated churn risk", f"{risk:.1f}%")
-    w2.metric("Risk tier", band)
+    one = pd.DataFrame([values])
+    risk = float(model.predict_proba(scaler.transform(one[FEATURES]))[0, 1] * 100)
+    band = risk_band(risk)
+    a, b = st.columns(2)
+    a.metric("Simulated churn risk", f"{risk:.1f}%")
+    b.metric("Risk tier", band)
     st.success(retention_action(" / ".join(FEATURES), band))
 
 with tabs[6]:
@@ -230,4 +207,4 @@ with tabs[7]:
         st.caption("Lightweight drift signal. Production monitoring should additionally track PSI/KS, missingness, label delay and live model performance.")
 
 st.divider()
-st.caption("Customer retention decision system • Streamlit • XGBoost • SHAP • Batch scoring • What-if • ROI • Monitoring")
+st.caption("Streamlit • XGBoost • SHAP • Customer 360 • Batch scoring • What-if • ROI • Monitoring")
