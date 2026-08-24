@@ -59,7 +59,15 @@ FEATURES = list(expected_features)
 reference = load_reference()
 
 st.title("📉 Customer Churn Prediction & Action System")
-st.caption("Predict risk → explain why → recommend action → measure business impact")
+st.subheader("Predict Risk → Explain Why → Recommend Action → Measure Business Impact")
+st.markdown("An end-to-end **AI-powered customer retention platform** that predicts churn probability, explains the key drivers with SHAP, recommends retention actions, and estimates potential ROI.")
+
+c1, c2 = st.columns(2)
+with c1:
+    st.info("**👤 New here? Start with Guest Demo**\n\nExplore the complete dashboard instantly using safe synthetic customer data — no upload required.")
+with c2:
+    st.info("**📂 Have customer data? Upload your CSV**\n\nAnalyze customer records with predictions, explanations, retention actions, and business insights.")
+st.caption("👤 Guest Demo uses synthetic data only.  •  📂 Data Mode analyzes your uploaded customer dataset.")
 
 st.sidebar.header("Demo / Data Input")
 mode = st.sidebar.radio("Choose mode", ["👤 Guest Demo", "📂 Upload Dataset"], index=0)
