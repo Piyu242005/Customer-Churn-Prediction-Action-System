@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT))
 from src.retention import retention_action, risk_band, roi_estimate
 
 st.set_page_config(page_title="Customer Churn Action System", page_icon="favicon.png", layout="wide")
-st.sidebar.image(str(ROOT / "Assets/PIYU_APP_ICONS_PNG/PIYU-AppIcon-180x180.png"), use_container_width=True)
+st.sidebar.image(str(ROOT / "Assets/PIYU_APP_ICONS_PNG/PIYU-AppIcon-180x180.png"), width=80)
 
 MODEL = ROOT / "models/best_churn_model.pkl"
 SCALER = ROOT / "models/scaler.pkl"
@@ -60,7 +60,7 @@ if model is None:
 FEATURES = list(expected_features)
 reference = load_reference()
 
-st.title("📉 Customer Churn Prediction & Action System")
+st.title("Customer Churn Prediction & Action System")
 st.subheader("Predict Risk → Explain Why → Recommend Action → Measure Business Impact")
 st.markdown("An end-to-end **AI-powered customer retention platform** that predicts churn probability, explains the key drivers with SHAP, recommends retention actions, and estimates potential ROI.")
 
