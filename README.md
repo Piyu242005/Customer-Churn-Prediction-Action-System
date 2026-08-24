@@ -1,12 +1,16 @@
 # 📉 Customer Churn Prediction Action System
 
-### Predict Risk → Explain Why → Recommend Action
+### Predict Risk → Explain Why → Recommend Action → Measure Impact
 
-An end-to-end ML application that predicts customer churn, explains the drivers behind each prediction with **SHAP**, and converts risk into practical retention recommendations.
+An end-to-end, action-oriented customer churn system built with **Python, XGBoost, SHAP and Streamlit**. It moves beyond prediction by identifying high-risk customers, explaining the drivers, recommending retention actions, and estimating the financial value of intervention.
 
-> **Purpose:** I created this project to demonstrate the full path from a machine-learning prediction to a business decision: identify at-risk customers, understand the reason, and recommend an action.
+> **Purpose:** Demonstrate the complete path from machine-learning prediction to a practical customer-retention decision.
 
-## ✨ Workflow
+## 🚀 Live Demo
+
+**Streamlit:** https://customer-churn-prediction-action-system-piyu.streamlit.app/
+
+## ✨ Product Workflow
 
 ```text
 Customer Data
@@ -17,43 +21,137 @@ Risk Segmentation
      ↓
 SHAP Explanation
      ↓
-Retention Recommendation
+Retention Action
      ↓
-Business Dashboard
+ROI Simulation
+     ↓
+Business Decision
 ```
 
 ## 🎯 Core Features
 
-| Feature | Business value |
+| Feature | What it does |
 |---|---|
-| XGBoost Churn Prediction | Estimates continuous churn probability |
-| Risk Segmentation | Prioritizes low/medium/high-risk customers |
-| SHAP Explainability | Identifies individual churn drivers |
-| Action Recommender | Converts model output into retention tasks |
-| Streamlit Dashboard | Makes results accessible to business users |
+| 🤖 XGBoost Churn Prediction | Estimates customer churn probability |
+| 👤 Customer 360 | Combines customer profile, risk, drivers and recommended action |
+| 🧠 SHAP Explainability | Shows global and customer-level churn drivers |
+| 🎯 Threshold Optimization | Lets business users choose an intervention threshold |
+| 📊 Model Comparison | Compares Logistic Regression, Random Forest and XGBoost |
+| 📦 Batch Scoring | Scores uploaded customer files and exports predictions as CSV |
+| 🔬 What-if Simulator | Tests how changing customer attributes affects churn risk |
+| 💰 ROI Simulator | Estimates saved revenue, intervention cost, net value and ROI |
+| 🛡️ Model Monitoring | Detects feature-distribution shifts against reference data |
+| 📈 Risk Analytics | High/medium/low segmentation and risk distributions |
+| 🎬 Streamlit Dashboard | Interactive business-facing interface |
+
+## 🧠 Explainable AI
+
+For each customer, the system provides:
+
+- Churn probability
+- Risk tier
+- Top churn driver
+- SHAP feature impacts
+- Recommended retention action
+
+Positive SHAP values push the prediction toward churn; negative values push it away from churn.
+
+## 💼 Retention Action Engine
+
+The recommendation layer maps model drivers to practical business actions, for example:
+
+```text
+Pricing / Charges  → Targeted pricing incentive
+Contract           → Long-term contract offer
+Support / Tech     → Proactive support outreach
+Engagement         → Targeted engagement campaign
+Revenue / Profit   → Account review
+```
+
+This creates a **Predict → Explain → Act** workflow rather than a prediction-only model.
+
+## 💰 Business ROI
+
+The ROI simulator estimates:
+
+**Expected Value Saved = Revenue at Risk × Expected Save Rate**
+
+**Net Value = Expected Value Saved − Intervention Cost**
+
+**ROI = Net Value ÷ Intervention Cost × 100**
+
+This allows users to test whether a retention campaign is economically worthwhile.
+
+## 📊 Model Evaluation
+
+The training pipeline compares:
+
+- Logistic Regression
+- Random Forest
+- XGBoost
+
+Metrics include:
+
+**Accuracy · Precision · Recall · F1 · ROC-AUC · PR-AUC · Confusion Matrix · Calibration**
+
+The dashboard also includes threshold analysis and visual evaluation assets.
+
+## 🛡️ Monitoring
+
+The dashboard includes a lightweight feature-drift monitor based on standardized mean shift between reference and current data.
+
+For production environments, this should be extended with:
+
+- PSI / KS tests
+- Missing-value monitoring
+- Prediction-distribution monitoring
+- Delayed-label monitoring
+- Live performance tracking
+- Model drift alerts
 
 ## 🏗️ Architecture
 
 ```mermaid
 graph LR
-    D[Customer CSV] --> P[Preprocessing]
+    D[Customer Data] --> P[Preprocessing]
     P --> M[XGBoost Model]
-    M --> R[Risk Score]
+    M --> R[Churn Probability]
     M --> S[SHAP]
-    R --> A[Risk Tier]
-    S --> WHY[Reason]
-    A --> ACT[Retention Action]
-    WHY --> ACT
-    ACT --> UI[Streamlit Dashboard]
+    R --> T[Risk Tier]
+    S --> W[Why]
+    T --> A[Retention Action]
+    W --> A
+    A --> ROI[ROI Simulation]
+    ROI --> UI[Streamlit Dashboard]
+    UI --> CSV[Batch CSV Export]
 ```
 
-## 📊 Evaluation
+## 📁 Project Structure
 
-The project compares ML approaches and uses XGBoost as the primary model. Evaluation should be interpreted using the current training run rather than treating a historical README percentage as a permanent guarantee.
+```text
+app/
+└── main.py                 # Streamlit product dashboard
 
-Recommended metrics:
+src/
+├── retention.py            # Retention rules + ROI logic
+├── train_dashboard.py      # Model training and comparison
+├── explainability.py        # Explainability utilities
+├── data_drift.py            # Drift utilities
+├── baseline_comparison.py   # Baseline model analysis
+├── model/                   # ML pipeline/evaluation
+└── ...
 
-**ROC-AUC · PR-AUC · Precision · Recall · F1 · Confusion Matrix · Calibration**
+models/                     # Trained model artifacts
+data/                       # Dataset and database
+notebooks/                  # Experiments and analysis
+Assets/                     # Evaluation charts
+Screenshot/                 # Product/workflow visuals
+tests/                     # Automated tests
+Dockerfile
+Makefile
+requirements.txt
+README.md
+```
 
 ## 🚀 Run Locally
 
@@ -64,34 +162,19 @@ pip install -r requirements.txt
 streamlit run app/main.py
 ```
 
-Sample data is available in the repository's screenshot/sample-data directory.
-
-## 📁 Structure
-
-```text
-app/          # Streamlit UI
-src/          # Training, preprocessing and evaluation
-models/       # ML artifacts
-data/         # Data files/notebooks/     # Analysis
-Screenshot/   # Demo images and sample data
-tests/        # Automated tests
-requirements.txt
-Makefile
-README.md
-```
-
 ## 🔐 Data & Security
 
-Do not upload sensitive customer information to a public deployment. Real production use should add authentication, authorization, encryption, audit logging and appropriate data-retention controls.
+Do not upload sensitive customer information to a public deployment. Production use should add authentication, authorization, encryption, audit logging, and appropriate data-retention controls.
 
-## 🗺️ Roadmap
+## 🗺️ Next Improvements
 
-- [ ] FastAPI prediction service
-- [ ] Cloud deployment
-- [ ] Action A/B testing
 - [ ] Probability calibration
-- [ ] Model drift monitoring
-- [ ] Retention uplift modeling
+- [ ] Retention A/B testing
+- [ ] Uplift modeling
+- [ ] Automated drift alerts
+- [ ] Scheduled model retraining
+
+> **Note:** This version intentionally keeps the application Streamlit-based and does not add a FastAPI prediction layer.
 
 ## 👨‍💻 Author
 
