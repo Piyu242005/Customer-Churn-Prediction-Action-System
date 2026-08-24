@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.retention import retention_action, risk_band, roi_estimate
 
-st.set_page_config(page_title="Customer Churn Action System", page_icon="📉", layout="wide")
+st.set_page_config(page_title="Customer Churn Action System", page_icon="favicon.png", layout="wide")
 MODEL = ROOT / "models/best_churn_model.pkl"
 SCALER = ROOT / "models/scaler.pkl"
 FEATURE_FILE = ROOT / "models/feature_names.pkl"
