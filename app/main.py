@@ -63,15 +63,43 @@ st.caption("Predict risk → explain why → recommend action → measure busine
 
 st.sidebar.header("Demo / Data Input")
 mode = st.sidebar.radio("Choose mode", ["👤 Guest Demo", "📂 Upload Dataset"], index=0)
+
 if mode == "👤 Guest Demo":
     df = make_guest_data()
     st.sidebar.success("Guest mode is fully functional")
     st.sidebar.caption("Synthetic data only — safe for public demos.")
     st.info("👤 **Guest Demo Mode:** synthetic customer data is loaded automatically. All dashboard functions are enabled.")
 else:
-    uploaded = st.sidebar.file_uploader("Upload customer CSV", type="csv")
+    st.sidebar.subheader("📂 Upload Customer Dataset")
+    st.sidebar.caption("Upload a CSV containing the customer records you want to score.")
+    with st.sidebar.expander("ℹ️ What CSV should I upload?", expanded=True):
+        st.markdown("""
+**Required model columns:**
+
+- `Quantity`
+- `Unit_Price`
+- `Discount_Rate`
+- `Revenue`
+- `Cost`
+- `Profit`
+
+The file may also contain customer identifiers such as `Customer_ID` or `Order_ID`.
+
+**Example:**
+
+```text
+Customer_ID,Quantity,Unit_Price,Discount_Rate,Revenue,Cost,Profit
+CUST-001,3,250,0.10,675,450,225
+CUST-002,1,500,0.05,475,350,125
+```
+
+**Tip:** You can use the sample dataset in the repository's `data/` folder.
+        """)
+    uploaded = st.sidebar.file_uploader("Upload customer CSV", type="csv", help="CSV containing the required model features.")
+    sample_csv = (reference if reference is not None else make_guest_data()).to_csv(index=False)
+    st.sidebar.download_button("⬇️ Download Sample CSV", sample_csv, "customer_churn_sample.csv", "text/csv")
     if uploaded is None:
-        st.info("Upload a CSV containing the model features, or switch to Guest Demo Mode.")
+        st.info("Upload a CSV containing the required model features, or switch to Guest Demo Mode.")
         st.stop()
     df = pd.read_csv(uploaded)
 
