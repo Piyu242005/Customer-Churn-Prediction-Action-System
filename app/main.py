@@ -20,6 +20,7 @@ from src.retention import retention_action, risk_band, roi_estimate
 
 st.set_page_config(page_title="Customer Churn Action System", page_icon="favicon.png", layout="wide")
 st.sidebar.image(str(ROOT / "Assets/PIYU_APP_ICONS_PNG/PIYU-AppIcon-180x180.png"), width=80)
+st.sidebar.markdown("**Piyusg Ramteke**")
 
 MODEL = ROOT / "models/best_churn_model.pkl"
 SCALER = ROOT / "models/scaler.pkl"
